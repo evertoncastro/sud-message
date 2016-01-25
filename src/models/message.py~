@@ -1,0 +1,51 @@
+import webapp2
+from google.appengine.ext import db
+from models.baseClass import BaseClass
+from google.appengine.ext import ndb
+from google.appengine.api import images
+from base64 import urlsafe_b64decode
+
+
+class Message(ndb.Model):
+    name = ndb.StringProperty()
+    email = ndb.StringProperty()
+    message = ndb.StringProperty()
+    image = ndb.BlobProperty();
+
+        
+
+class HandleMessage(webapp2.RequestHandler):
+    def get(self):
+        query = Message.query()
+        messagelist = query.fetch()
+        self.response.headers.add_header("Access-Control-Allow-Origin", "*")
+        for msg in messagelist:
+            if msg.image:
+                newimage = msg.image;
+                id = msg.key.id()
+                self.response.headers['Content-Type'] = 'image/jpeg'
+                newimage = msg.image.decode('base64');
+                self.response.out.write(newimage)
+            else:
+                self.response.out.write('No imag    e')
+                self.response.out.write('</ul>')
+
+
+
+class RegisterMessage(BaseClass):
+    def handle(self, received_json_data, response_data):
+        try:           
+            image = received_json_data.get('image')
+            msg = Message(
+                    name=received_json_data.get('name'),
+                    email=received_json_data.get('email'),
+                    message=received_json_data.get('message'),
+                    image = received_json_data.get('image')
+            )
+        
+            msg.put()
+            response_data['message'] = 'Success registering message'.decode('latin-1')
+        except:
+            response_data['message'] = 'Error registering message'.decode('latin-1')
+
+
