@@ -4,6 +4,7 @@ import webapp2
 import jinja2
 from google.appengine.ext.webapp.util import run_wsgi_app
 from models.message import Message, RegisterMessage, LoadMessage, UpdateMessage
+from models.user import RegisterUser
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -30,7 +31,9 @@ mapeamento = [
     ('/', PostHandler),
     ('/loadMessage', LoadMessage),
     ('/registerMessage', RegisterMessage),
-    ('/updateMessage', UpdateMessage)
+    ('/updateMessage', UpdateMessage),
+    ('/registerUser', RegisterUser)
 ]
+
 app = webapp2.WSGIApplication(mapeamento, debug=True)
 run_wsgi_app(app)
