@@ -9,25 +9,24 @@ class Message(ndb.Model):
     dateCreation = ndb.DateTimeProperty(auto_now=True)
     title = ndb.StringProperty()
     text = ndb.StringProperty()
-    userName = ndb.StringProperty()
-
+    firstname = ndb.StringProperty()
+    lastname = ndb.StringProperty()
 
 class RegisterMessage(AuthMethods):
-    def handle_auth(self, received_json_data, response_data, user):  
-        try:  
+    def handle_auth(self, received_json_data, response_data, user):
+        try:
             keyUser = user.getUserKey(user.get_id())
             msg = Message(
-                        title=received_json_data.get('title'),                      
-                        text=received_json_data.get('text'),       
-                        userName=user.name,
-                        parent=keyUser
-            )        
-            messageKey = msg.put()
-            theMessage = messageKey.get()
+                title=received_json_data.get('title'),
+                text=received_json_data.get('text'),
+                firstname=user.firstname,
+                lastname=user.lastname,
+                parent=keyUser
+            )
+            msg.put()
             response_data['message'] = 'Success registering message'.decode('latin-1')
-            response_data['name'] = msg.userName
         except:
-            response_data['message'] = 'Error registering message'.decode('latin-1')         
+            response_data['message'] = 'Error registering message'.decode('latin-1')
 
 
 class LoadMessageByUser(AuthMethodsResponse):
@@ -40,10 +39,16 @@ class LoadMessageByUser(AuthMethodsResponse):
             for msg in messagelist:
                 if msg.key.id():
                     msg.id = msg.key.id()
+
+                if msg.key.urlsafe():
+                    msg.urlsafe = msg.key.urlsafe()
+
                     jsonMessage = {"id": msg.id,
                                    "title": msg.title,
                                    "text": msg.text,
-                                   "userName": msg.userName}
+                                   "firstname": msg.firstname,
+                                   "lastname": msg.lastname,
+                                   "urlsafe": msg.urlsafe}
 
                     jsonMessageList.append(jsonMessage)
 
@@ -65,28 +70,26 @@ class LoadMessage(BaseClass):
                 if msg.key.id():
                     msg.id = msg.key.id()
 
-                if msg.key.pairs():
-                    msg.pairs = msg.key.pairs()
-
                 if msg.key.urlsafe():
                     msg.urlsafe = msg.key.urlsafe()
 
-                       
+
                     jsonMessage = {"id": msg.id,
                                    "title": msg.title,
                                    "text": msg.text,
-                                   "userName": msg.userName,
+                                   "firstname": msg.firstname,
+                                   "lastname": msg.lastname,
                                    "urlsafe": msg.urlsafe}
 
                     jsonMessageList.append(jsonMessage)
-                     
+
             response_data = jsonMessageList
             self.response.out.write(json.dumps(response_data))
         except:
             response_data['message'] = 'Error getting message'.decode('latin-1')
 
-            
-            
+
+
 class UpdateMessage(AuthMethods):
     def handle_auth(self, received_json_data, response_data, user):
         try:
@@ -110,8 +113,8 @@ class UpdateMessage(AuthMethods):
             response_data['message'] = 'Success updating message'.decode('latin-1')
         except:
             response_data['message'] = 'Error updating message'.decode('latin-1')
-        
-              
+
+
 class DropMessage(AuthMethods):
     def handle_auth(self, received_json_data, response_data, user):
         try:
@@ -123,8 +126,8 @@ class DropMessage(AuthMethods):
             response_data['message'] = 'Success droping message'.decode('latin-1')
         except:
             response_data['message'] = 'Error droping message'.decode('latin-1')
-            
-            
+
+
 # class LoadMessage(BaseClass):
 #     def handle(self, response_data):
 #         try:
