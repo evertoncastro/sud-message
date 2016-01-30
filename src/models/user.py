@@ -78,10 +78,10 @@ class DoLogin(BaseClass):
             logging.debug('user_id [%s]', user_id)
             token = u.create_auth_token(user_id)
             response_data['status'] = 'OK'
-            response_data['desc'] = 'Ola {user}, seja bem-vindo!'.format(user=u.name).decode('latin-1')
+            response_data['desc'] = 'Ola {user}, seja bem-vindo!'.format(user=u.firstname).decode('latin-1')
             response_data['token'] = token
 
-            jsondata = {'name': u.name, 'email': u.email}
+            jsondata = {'firstname': u.firstname, 'lastname': u.lastname, 'email': u.email, 'id': user_id}
             
             response_data['user_data'] = jsondata
         except (InvalidAuthIdError, InvalidPasswordError) as e:
