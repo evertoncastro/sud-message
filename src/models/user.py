@@ -37,7 +37,7 @@ class RegisterUser(BaseClass):
         if not received_json_data.get('email') or not received_json_data.get('password'):
             response_data['status'] = 'INVALID_PARAMETER'
             response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
-        elif not received_json_data['name']:
+        elif not received_json_data['firstname'] and not received_json_data('lastname'):
             response_data['status'] = 'INVALID_PARAMETER'
             response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
         else:
@@ -47,7 +47,8 @@ class RegisterUser(BaseClass):
             user, props = User.create_user(email, unique_properties=['email'],
                                          password_raw=received_json_data['password'],
                                          email=email,
-                                         name=received_json_data['name'],
+                                         firstname=received_json_data['firstname'],
+                                         lastname=received_json_data['lastname'],
                                          image=received_json_data['image']
                                          )
             
@@ -57,10 +58,8 @@ class RegisterUser(BaseClass):
                 response_data['extra'] = props
             else:
                 isOk=True
-                logging.debug('PROPS: [%s]', str(props.key.id()))
                 userTemp = User.get_by_id(props.key.id())
                 token = userTemp.create_auth_token(userTemp.get_id())
-                logging.debug('TOKEN: [%s]', token);
                 response_data['token'] = token                    
             
             if isOk:
