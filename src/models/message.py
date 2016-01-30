@@ -22,7 +22,8 @@ class RegisterMessage(AuthMethods):
                         userName=user.name,
                         parent=keyUser
             )        
-            msg.put()
+            messageKey = msg.put()
+            theMessage = messageKey.get()
             response_data['message'] = 'Success registering message'.decode('latin-1')
             response_data['name'] = msg.userName
         except:
@@ -62,39 +63,66 @@ class LoadMessage(BaseClass):
             messagelist = query.fetch()
             for msg in messagelist:
                 if msg.key.id():
-                    msg.id = msg.key.id()  
+                    msg.id = msg.key.id()
+
+                if msg.key.pairs():
+                    msg.pairs = msg.key.pairs()
+
+                if msg.key.urlsafe():
+                    msg.urlsafe = msg.key.urlsafe()
+
                        
                     jsonMessage = {"id": msg.id,
                                    "title": msg.title,
                                    "text": msg.text,
-                                   "userName": msg.userName}
+                                   "userName": msg.userName,
+                                   "urlsafe": msg.urlsafe}
 
                     jsonMessageList.append(jsonMessage)
                      
             response_data = jsonMessageList
+            self.response.out.write(json.dumps(response_data))
         except:
-            response_data['message'] = 'Error getting message'.decode('latin-1')  
+            response_data['message'] = 'Error getting message'.decode('latin-1')
 
             
             
 class UpdateMessage(AuthMethods):
-    def handle_auth(self, received_json_data, response_data):     
-        try: 
-            message_id = int(received_json_data.get('id'))
-            message = Message.get_by_id(message_id)
-                 
-            message.name = received_json_data.get('name')
-            message.email = received_json_data.get('email')
-            message.message = received_json_data.get('message')
-            
+    def handle_auth(self, received_json_data, response_data, user):
+        try:
+            message_urlsafe = received_json_data.get('urlsafe')
+            message_urlsafe = ndb.Key(urlsafe=message_urlsafe)
+            message = message_urlsafe.get()
+
+            title = received_json_data.get('title')
+            text = received_json_data.get('text')
+            image = received_json_data.get('image')
+
+            if title:
+                message.title = received_json_data.get('title')
+            if text:
+                message.text = received_json_data.get('text')
+            if image:
+                message.image = received_json_data.get('image')
+
             message.put()
-            
+
             response_data['message'] = 'Success updating message'.decode('latin-1')
         except:
             response_data['message'] = 'Error updating message'.decode('latin-1')
         
               
-    
+class DropMessage(AuthMethods):
+    def handle_auth(self, received_json_data, response_data, user):
+        try:
+            message_urlsafe = received_json_data.get('urlsafe')
+            message_urlsafe = ndb.Key(urlsafe=message_urlsafe)
+
+            message_urlsafe.delete()
+
+            response_data['message'] = 'Success droping message'.decode('latin-1')
+        except:
+            response_data['message'] = 'Error droping message'.decode('latin-1')
             
             
 # class LoadMessage(BaseClass):
