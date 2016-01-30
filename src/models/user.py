@@ -1,6 +1,7 @@
 from models.baseClass import BaseClass
 import webapp2_extras.appengine.auth.models
 from webapp2_extras.auth import InvalidAuthIdError, InvalidPasswordError
+from util.Util import Util
 import logging
 
 try:
@@ -11,13 +12,13 @@ except ImportError: # pragma: no cover
 from google.appengine.ext import ndb
 
 class User(webapp2_extras.appengine.auth.models.User):
-    
+
     @classmethod
     def getUserKey(cls, user_id):
         user_key = model.Key(cls, user_id)
-        
+
         return user_key
-    
+
     @classmethod
     def create_auth_token(cls, user_id):
         """Creates a new authorization token for a given user ID.
@@ -27,7 +28,7 @@ class User(webapp2_extras.appengine.auth.models.User):
         :returns:
             A string with the authorization token.
         """
-        
+
         return cls.token_model.create(user_id, 'auth').key.id()
 
 class RegisterUser(BaseClass):
@@ -41,17 +42,17 @@ class RegisterUser(BaseClass):
             response_data['status'] = 'INVALID_PARAMETER'
             response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
         else:
-            isOk = False            
-            email = received_json_data['email']                    
-                            
+            isOk = False
+            email = received_json_data['email']
+
             user, props = User.create_user(email, unique_properties=['email'],
-                                         password_raw=received_json_data['password'],
-                                         email=email,
-                                         firstname=received_json_data['firstname'],
-                                         lastname=received_json_data['lastname'],
-                                         image=received_json_data['image']
-                                         )
-            
+                                           password_raw=received_json_data['password'],
+                                           email=email,
+                                           firstname=received_json_data['firstname'],
+                                           lastname=received_json_data['lastname'],
+                                           image=received_json_data['image']
+                                           )
+
             if not user:
                 response_data['status'] = 'ALREADYEXISTS_USER'
                 response_data['desc'] = 'Usuario ja existe'.decode('latin-1')
@@ -60,14 +61,41 @@ class RegisterUser(BaseClass):
                 isOk=True
                 userTemp = User.get_by_id(props.key.id())
                 token = userTemp.create_auth_token(userTemp.get_id())
-                response_data['token'] = token                    
-            
+                response_data['token'] = token
+
             if isOk:
                 response_data['status'] = 'OK'
-                
-                
+
+
+class UpdateUser(BaseClass):
+
+    def handle(self, received_json_data, response_data):
+        try:
+            tokenOrig = received_json_data['token']
+            user_id, token = Util().parseToken(tokenOrig)
+            user, temp = User.get_by_auth_token(int(user_id), token)
+
+            if not user:
+                response_data['status'] = 'NOT_FOUND_USER'
+                response_data['desc'] = 'Usuario nao encontrado'.decode('latin-1')
+            else:
+                firstname = received_json_data['firstname']
+                lastname = received_json_data['lastname']
+
+                if firstname:
+                    user.firstname = firstname
+                if lastname:
+                    user.lastname = lastname
+
+                user.put()
+                response_data['desc'] = 'Usuario atualizado com sucesso'.decode('latin-1')
+
+        except:
+            response_data['status'] = 'NOT_FOUND_USER'
+            response_data['desc'] = 'Usuario nao encontrado'.decode('latin-1')
+
 class DoLogin(BaseClass):
-    
+
     def handle(self, received_json_data, response_data):
         email = received_json_data['email']
         password = received_json_data['password']
@@ -77,11 +105,11 @@ class DoLogin(BaseClass):
             logging.debug('user_id [%s]', user_id)
             token = u.create_auth_token(user_id)
             response_data['status'] = 'OK'
-            response_data['desc'] = 'Ola {user}, seja bem-vindo!'.format(user=u.firstname).decode('latin-1')
+            #response_data['desc'] = 'Ola {user}, seja bem-vindo!'.format(user=u.firstname).decode('unicode_escape')
             response_data['token'] = token
 
             jsondata = {'firstname': u.firstname, 'lastname': u.lastname, 'email': u.email, 'id': user_id}
-            
+
             response_data['user_data'] = jsondata
         except (InvalidAuthIdError, InvalidPasswordError) as e:
             response_data['status'] = 'INVALID_USERPASSWORD'

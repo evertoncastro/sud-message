@@ -28,7 +28,6 @@ class BaseClassAuth(webapp2.RequestHandler):
         response_data = {}
         self.handle(response_data)
 
-
     def post(self):
         self.response.headers.add_header("Access-Control-Allow-Origin", "*")
         self.response.headers['Content-Type'] = 'application/json'
