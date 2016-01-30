@@ -41,14 +41,14 @@ class RegisterUser(BaseClass):
             response_data['status'] = 'INVALID_PARAMETER'
             response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
         else:
-            isOk = False
-            
+            isOk = False            
             email = received_json_data['email']                    
                             
             user, props = User.create_user(email, unique_properties=['email'],
                                          password_raw=received_json_data['password'],
                                          email=email,
-                                         name=received_json_data['name']
+                                         name=received_json_data['name'],
+                                         image=received_json_data['image']
                                          )
             
             if not user:

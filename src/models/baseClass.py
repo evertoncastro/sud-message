@@ -7,8 +7,7 @@ class BaseClass(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         response_data = {}
         self.handle(response_data)
-        # Write here the response.....
-        #self.response.out.write(json.dumps(response_data))
+
     
     def post(self):
         self.response.headers.add_header("Access-Control-Allow-Origin", "*")

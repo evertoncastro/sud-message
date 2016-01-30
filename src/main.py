@@ -3,9 +3,8 @@ import os
 import webapp2
 import jinja2
 from google.appengine.ext.webapp.util import run_wsgi_app
-from models.message import Message, RegisterMessage, LoadMessage, UpdateMessage
-from models.user import RegisterUser, DoLogin
-from models.authentication import AuthMethods
+from models.message import RegisterMessage, LoadMessage, UpdateMessage
+from models.user import RegisterUser, DoLogin, User
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -17,16 +16,15 @@ class PostHandler(webapp2.RequestHandler):
     def get(self):
         template = JINJA_ENVIRONMENT.get_template('/templates/create_message.html')
         self.response.write(template.render())
-
+        
     def post(self):
-        msg = Message(
-                name=self.request.get('name'),
-                email=self.request.get('email'),
-                message=self.request.get('message'),
-                image=self.request.get('image')
-        )
-        msg.put()
-        self.redirect('/loadMessage')
+        email = self.request.get('email'),
+        User.create_user(email, unique_properties=['email'],
+                        password_raw=self.request.get('password'),
+                        email=email,
+                        name= self.request.get('name'),
+                        image= self.request.get('image'))
+       
 
 mapeamento = [
     ('/', PostHandler),
@@ -36,6 +34,7 @@ mapeamento = [
     ('/registerUser', RegisterUser),
     ('/doLogin', DoLogin)
 ]
+
 
 app = webapp2.WSGIApplication(mapeamento, debug=True)
 run_wsgi_app(app)
