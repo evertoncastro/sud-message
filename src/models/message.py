@@ -1,7 +1,8 @@
 from google.appengine.ext import ndb
 from models.baseClass import BaseClass
-from models.authentication import AuthMethods
+from models.authentication import AuthMethods, AuthMethodsResponse
 import json
+import logging
 
 
 class Message(ndb.Model):
@@ -9,20 +10,7 @@ class Message(ndb.Model):
     title = ndb.StringProperty()
     text = ndb.StringProperty()
     userName = ndb.StringProperty()
-   
-#     def saveMessage(self, objMessage, userAuth):
-#         try:
-#             #keyUser = userAuth.getUserKey(userAuth.get_id())
-#             msg = Message(
-#                         title='Title',                        
-#                         text='Text',
-#                         userName=userAuth.get('name')
-#             )        
-#             msg.put_async() 
-#             return msg.name
-#         except:
-#             objMessage['desc'] = 'Deu erro'.decode('latin-1')  
-            
+
 
 class RegisterMessage(AuthMethods):
     def handle_auth(self, received_json_data, response_data, user):  
@@ -41,6 +29,30 @@ class RegisterMessage(AuthMethods):
             response_data['message'] = 'Error registering message'.decode('latin-1')         
 
 
+class LoadMessageByUser(AuthMethodsResponse):
+    def handle_auth(self, received_json_data, response_data, user):
+        try:
+            id_user = user.get_id()
+            jsonMessage = {}
+            jsonMessageList = []
+            messagelist = Message.query(ancestor=user.getUserKey(id_user)).fetch()
+            for msg in messagelist:
+                if msg.key.id():
+                    msg.id = msg.key.id()
+                    jsonMessage = {"id": msg.id,
+                                   "title": msg.title,
+                                   "text": msg.text,
+                                   "userName": msg.userName}
+
+                    jsonMessageList.append(jsonMessage)
+
+            response_data = jsonMessageList
+            self.response.out.write(json.dumps(response_data))
+        except:
+            response_data['message'] = 'Error getting message'.decode('latin-1')
+
+
+
 class LoadMessage(BaseClass):
     def handle(self, response_data):
         try:
@@ -52,24 +64,23 @@ class LoadMessage(BaseClass):
                 if msg.key.id():
                     msg.id = msg.key.id()  
                        
-                jsonMessage = {"id": msg.id,
-                               "title": msg.title,  
-                               "text": msg.text, 
-                               "userName": msg.userName} 
-                 
-                jsonMessageList.append(jsonMessage)
+                    jsonMessage = {"id": msg.id,
+                                   "title": msg.title,
+                                   "text": msg.text,
+                                   "userName": msg.userName}
+
+                    jsonMessageList.append(jsonMessage)
                      
             response_data = jsonMessageList
-            self.response.out.write(json.dumps(response_data))
         except:
             response_data['message'] = 'Error getting message'.decode('latin-1')  
-            self.response.out.write(json.dumps(response_data))   
+
             
             
 class UpdateMessage(AuthMethods):
     def handle_auth(self, received_json_data, response_data):     
         try: 
-            message_id = int(received_json_data.get('id'));
+            message_id = int(received_json_data.get('id'))
             message = Message.get_by_id(message_id)
                  
             message.name = received_json_data.get('name')

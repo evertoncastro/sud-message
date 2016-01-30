@@ -80,13 +80,11 @@ class DoLogin(BaseClass):
             response_data['status'] = 'OK'
             response_data['desc'] = 'Ola {user}, seja bem-vindo!'.format(user=u.name).decode('latin-1')
             response_data['token'] = token
-            
-            #TODO: it should be refactored
+
             jsondata = {'name': u.name, 'email': u.email}
             
             response_data['user_data'] = jsondata
-            #logging.debug('user data [%s]', json.decoder(u));
         except (InvalidAuthIdError, InvalidPasswordError) as e:
             response_data['status'] = 'INVALID_USERPASSWORD'
             response_data['desc'] = 'E-mail ou senha invalidos'.decode('latin-1')
-            logging.info('Login failed for user %s because of %s', email, type(e))                 
+            logging.info('Login failed for user %s because of %s', email, type(e))
