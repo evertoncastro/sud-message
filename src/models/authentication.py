@@ -2,6 +2,7 @@ import logging
 from models.baseClass import BaseClass, BaseClassAuth
 from models.user import User
 from util.Util import Util
+import json
 
 
 class AuthMethods(BaseClass):
@@ -34,3 +35,4 @@ class AuthMethodsResponse(BaseClassAuth):
         else:
             response_data['status'] = 'INVALID_TOKEN'
             response_data['desc'] = 'Usuario nao autenticado'.decode('latin-1')
+            self.response.out.write(json.dumps(response_data))
