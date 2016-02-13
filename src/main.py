@@ -16,7 +16,7 @@ class PostHandler(webapp2.RequestHandler):
     def get(self):
         template = JINJA_ENVIRONMENT.get_template('/templates/create_message.html')
         self.response.write(template.render())
-        
+
     def post(self):
         email = self.request.get('email'),
         User.create_user(email, unique_properties=['email'],

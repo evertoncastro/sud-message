@@ -12,7 +12,9 @@ class BaseClass(webapp2.RequestHandler):
 
     
     def post(self):
-        self.response.headers.add_header("Access-Control-Allow-Origin", "*")
+        #_origin = self.request.headers['Origin']
+        self.response.headers.add_header("Access-Control-Allow-Origin","*")
+        self.response.headers.add_header("Access-Control-Request-Method", "POST")
         self.response.headers['Content-Type'] = 'application/json'
         received_json_data=json.loads(self.request.body)
         response_data = {}

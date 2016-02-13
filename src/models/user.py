@@ -2,6 +2,7 @@ from models.baseClass import BaseClass
 import webapp2_extras.appengine.auth.models
 from webapp2_extras.auth import InvalidAuthIdError, InvalidPasswordError
 from util.Util import Util
+from google.appengine.api import mail
 import logging
 
 try:
@@ -62,6 +63,11 @@ class RegisterUser(BaseClass):
                 userTemp = User.get_by_id(props.key.id())
                 token = userTemp.create_auth_token(userTemp.get_id())
                 response_data['token'] = token
+
+                mail.send_mail(sender="contasocial.castro@gmail.com",
+                              to="Everton de Castro <evertoncastro.sp@gmail.com>",
+                              subject="Your account has been approved",
+                              body='Teste')
 
             if isOk:
                 response_data['status'] = 'OK'
