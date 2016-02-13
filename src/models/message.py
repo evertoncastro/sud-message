@@ -3,6 +3,7 @@ from models.baseClass import BaseClass
 from models.authentication import AuthMethods, AuthMethodsResponse
 import json
 import logging
+import webapp2
 
 
 class Message(ndb.Model):
@@ -11,6 +12,7 @@ class Message(ndb.Model):
     text = ndb.StringProperty()
     firstname = ndb.StringProperty()
     lastname = ndb.StringProperty()
+
 
 class RegisterMessage(AuthMethods):
     def handle_auth(self, received_json_data, response_data, user):
@@ -56,7 +58,6 @@ class LoadMessageByUser(AuthMethodsResponse):
             self.response.out.write(json.dumps(response_data))
         except:
             response_data['message'] = 'Error getting message'.decode('latin-1')
-
 
 
 class LoadMessage(BaseClass):
