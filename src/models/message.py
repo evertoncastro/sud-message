@@ -10,23 +10,30 @@ class Message(ndb.Model):
     dateCreation = ndb.DateTimeProperty(auto_now=True)
     title = ndb.StringProperty()
     text = ndb.StringProperty()
-    firstname = ndb.StringProperty()
-    lastname = ndb.StringProperty()
+    userGlobalInfoUrlSafe = ndb.StringProperty()
+    image = ndb.StringProperty()
 
 
 class RegisterMessage(AuthMethods):
     def handle_auth(self, received_json_data, response_data, user):
         try:
-            keyUser = user.getUserKey(user.get_id())
-            msg = Message(
-                title=received_json_data.get('title'),
-                text=received_json_data.get('text'),
-                firstname=user.firstname,
-                lastname=user.lastname,
-                parent=keyUser
-            )
-            msg.put()
-            response_data['message'] = 'Success registering message'.decode('latin-1')
+            if not received_json_data.get('title') or not received_json_data.get('text'):
+                response_data['status'] = 'MESSAGE INCOMPLETE'
+                response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
+            elif not received_json_data.get('userGlobalInfoUrlSafe'):
+                response_data['status'] = 'MESSAGE SHOULD BE BOUND WITH USER GLOBAL INFO'
+                response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
+            else:
+                keyUser = user.getUserKey(user.get_id())
+                msg = Message(
+                    title=received_json_data.get('title'),
+                    text=received_json_data.get('text'),
+                    userGlobalInfoUrlSafe=received_json_data.get('userGlobalInfoUrlSafe'),
+                    image=received_json_data.get('image'),
+                    parent=keyUser
+                )
+                msg.put()
+                response_data['message'] = 'Success registering message'.decode('latin-1')
         except:
             response_data['message'] = 'Error registering message'.decode('latin-1')
 
