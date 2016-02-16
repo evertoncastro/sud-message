@@ -5,7 +5,7 @@ import jinja2
 from google.appengine.ext.webapp.util import run_wsgi_app
 from models.message import RegisterMessage, LoadMessage, LoadMessageByUser, UpdateMessage, DropMessage
 from models.user import RegisterUser, DoLogin, UpdateUser, User
-from models.person import RegisterPerson, LoadPersonList, UpdatePerson
+from models.person import RegisterPerson, LoadPersonList, UpdatePerson, DropPerson
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -39,7 +39,8 @@ mapeamento = [
     ('/updateUser', UpdateUser),
     ('/registerPerson', RegisterPerson),
     ('/loadPersonList', LoadPersonList),
-    ('/updatePerson', UpdatePerson)
+    ('/updatePerson', UpdatePerson),
+    ('/dropPerson', DropPerson)
 ]
 
 

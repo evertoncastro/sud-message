@@ -96,3 +96,16 @@ class UpdatePerson(AuthMethods):
             response_data['message'] = 'Success updating message'.decode('latin-1')
         except:
             response_data['message'] = 'Error updating message'.decode('latin-1')
+
+
+class DropPerson(AuthMethods):
+    def handle_auth(self, received_json_data, response_data, user):
+        try:
+            person_urlsafe = received_json_data.get('urlsafe')
+            person_urlsafe = ndb.Key(urlsafe=person_urlsafe)
+
+            person_urlsafe.delete()
+
+            response_data['message'] = 'Success droping person'.decode('latin-1')
+        except:
+            response_data['message'] = 'Error droping person'.decode('latin-1')
