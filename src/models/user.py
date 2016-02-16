@@ -3,7 +3,6 @@ import webapp2_extras.appengine.auth.models
 from google.appengine.ext import ndb
 from webapp2_extras.auth import InvalidAuthIdError, InvalidPasswordError
 from util.Util import Util
-from google.appengine.api import mail
 import logging
 
 try:
@@ -64,16 +63,6 @@ class RegisterUser(BaseClass):
                     token = userTemp.create_auth_token(userTemp.get_id())
                     response_data['token'] = token
 
-                    keyUser = userTemp.getUserKey(userTemp.get_id())
-                    userGlobalInfo = UserGlobalInfo(
-                        image=received_json_data.get('image'),
-                        email=received_json_data.get('email'),
-                        firstname=received_json_data.get('firstname'),
-                        lastname=received_json_data.get('lastname'),
-                        parent=keyUser
-                    )
-                    userGlobalInfo.put()
-
                 if isOk:
                     response_data['status'] = 'OK'
         except:
@@ -103,17 +92,6 @@ class UpdateUser(BaseClass):
                     user.lastname = lastname
 
                 user.put()
-                user_id = user.get_id()
-                userGlobalInfo = UserGlobalInfo.query(ancestor=user.getUserKey(user_id)).fetch()
-                userGlobalInfo = userGlobalInfo[0]
-                if image:
-                    userGlobalInfo.image = image
-                if firstname:
-                    userGlobalInfo.firstname = firstname
-                if lastname:
-                    userGlobalInfo.lastname = lastname
-
-                userGlobalInfo.put()
 
                 response_data['desc'] = 'Usuario atualizado com sucesso'.decode('latin-1')
 
@@ -133,15 +111,10 @@ class DoLogin(BaseClass):
             logging.debug('user_id [%s]', user_id)
             token = u.create_auth_token(user_id)
             response_data['status'] = 'OK'
-            #response_data['desc'] = 'Ola {user}, seja bem-vindo!'.format(user=u.firstname).decode('unicode_escape')
-            userGlobalInfo = UserGlobalInfo.query(ancestor=u.getUserKey(user_id)).fetch()
-            userGlobalInfo = userGlobalInfo[0]
-            if userGlobalInfo.key.urlsafe():
-                    userGlobalInfo.urlsafe = userGlobalInfo.key.urlsafe()
 
             response_data['token'] = token
             jsondata = {'firstname': u.firstname, 'lastname': u.lastname,
-                        'email': u.email, 'id': user_id, 'image': userGlobalInfo.image, 'userGlobalInfoUrlSafe': userGlobalInfo.urlsafe}
+                        'email': u.email, 'id': user_id}
 
             response_data['user_data'] = jsondata
         except (InvalidAuthIdError, InvalidPasswordError) as e:
@@ -150,12 +123,7 @@ class DoLogin(BaseClass):
             logging.info('Login failed for user %s because of %s', email, type(e))
 
 
-class UserGlobalInfo(ndb.Model):
-    dateCreation = ndb.DateTimeProperty(auto_now=True)
-    image = ndb.StringProperty()
-    email = ndb.StringProperty()
-    firstname = ndb.StringProperty()
-    lastname = ndb.StringProperty()
+
 
 
 

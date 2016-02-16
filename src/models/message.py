@@ -55,8 +55,8 @@ class LoadMessageByUser(AuthMethodsResponse):
                     jsonMessage = {"id": msg.id,
                                    "title": msg.title,
                                    "text": msg.text,
-                                   "firstname": msg.firstname,
-                                   "lastname": msg.lastname,
+                                   "image": msg.image,
+                                   "userGlobalInfoUrlSafe": msg.userGlobalInfoUrlSafe,
                                    "urlsafe": msg.urlsafe}
 
                     jsonMessageList.append(jsonMessage)
@@ -85,8 +85,8 @@ class LoadMessage(BaseClass):
                     jsonMessage = {"id": msg.id,
                                    "title": msg.title,
                                    "text": msg.text,
-                                   "firstname": msg.firstname,
-                                   "lastname": msg.lastname,
+                                   "image": msg.image,
+                                   "userGlobalInfoUrlSafe": msg.userGlobalInfoUrlSafe,
                                    "urlsafe": msg.urlsafe}
 
                     jsonMessageList.append(jsonMessage)
