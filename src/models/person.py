@@ -60,7 +60,7 @@ class LoadPersonList(BaseClass):
                                    "lastname": person.lastname,
                                    "image": person.image,
                                    "exibitionName": person.exibitionName,
-                                   "urlsafe": person.urlsafe}
+                                   "personUrlSafe": person.urlsafe}
 
                     jsonPersonList.append(jsonPerson)
 

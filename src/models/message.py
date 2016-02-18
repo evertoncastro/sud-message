@@ -12,16 +12,17 @@ class Message(ndb.Model):
     text = ndb.StringProperty()
     personUrlSafe = ndb.StringProperty()
     image = ndb.StringProperty()
+    status = ndb.StringProperty()
 
 
 class RegisterMessage(AuthMethods):
     def handle_auth(self, received_json_data, response_data, user):
         try:
-            if not received_json_data.get('title') or not received_json_data.get('text'):
+            if not received_json_data.get('title') or not received_json_data.get('text') or not received_json_data.get('status'):
                 response_data['status'] = 'MESSAGE INCOMPLETE'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
             elif not received_json_data.get('personUrlSafe'):
-                response_data['status'] = 'MESSAGE SHOULD BE BOUND WITH USER GLOBAL INFO'
+                response_data['status'] = 'MESSAGE SHOULD BE BOUND WITH PERSON'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
 
             else:
@@ -30,7 +31,8 @@ class RegisterMessage(AuthMethods):
                     title=received_json_data.get('title'),
                     text=received_json_data.get('text'),
                     personUrlSafe=received_json_data.get('personUrlSafe'),
-                    image=received_json_data.get('image')
+                    image=received_json_data.get('image'),
+                    status=received_json_data.get('status')
                 )
                 msg.put()
                 response_data['message'] = 'Success registering message'.decode('latin-1')
@@ -87,7 +89,8 @@ class LoadMessage(BaseClass):
                                    "text": msg.text,
                                    "image": msg.image,
                                    "personUrlSafe": msg.personUrlSafe,
-                                   "urlsafe": msg.urlsafe}
+                                   "urlsafe": msg.urlsafe,
+                                   "status": msg.status}
 
                     jsonMessageList.append(jsonMessage)
 
@@ -108,6 +111,8 @@ class UpdateMessage(AuthMethods):
             title = received_json_data.get('title')
             text = received_json_data.get('text')
             image = received_json_data.get('image')
+            status = received_json_data.get('status')
+            personUrlSafe = received_json_data.get('personUrlSafe')
 
             if title:
                 message.title = received_json_data.get('title')
@@ -115,6 +120,10 @@ class UpdateMessage(AuthMethods):
                 message.text = received_json_data.get('text')
             if image:
                 message.image = received_json_data.get('image')
+            if status:
+                message.status = received_json_data.get('status')
+            if personUrlSafe:
+                message.personUrlSafe = received_json_data.get('personUrlSafe')
 
             message.put()
 
