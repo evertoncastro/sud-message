@@ -65,9 +65,11 @@ class RegisterUser(BaseClass):
 
                 if isOk:
                     response_data['status'] = 'OK'
+                    response_data['intern'] = True
         except:
             response_data['status'] = 'ERROR'
             response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
+            response_data['intern'] = False
 
 
 class UpdateUser(BaseClass):
@@ -94,10 +96,12 @@ class UpdateUser(BaseClass):
                 user.put()
 
                 response_data['desc'] = 'Usuario atualizado com sucesso'.decode('latin-1')
+                response_data['intern'] = True
 
         except:
             response_data['status'] = 'NOT_FOUND_USER'
             response_data['desc'] = 'Usuario nao encontrado'.decode('latin-1')
+            response_data['intern'] = False
 
 
 class DoLogin(BaseClass):
@@ -117,10 +121,12 @@ class DoLogin(BaseClass):
                         'email': u.email, 'id': user_id}
 
             response_data['user_data'] = jsondata
+            response_data['intern'] = True
         except (InvalidAuthIdError, InvalidPasswordError) as e:
             response_data['status'] = 'INVALID_USERPASSWORD'
             response_data['desc'] = 'E-mail ou senha invalidos'.decode('latin-1')
             logging.info('Login failed for user %s because of %s', email, type(e))
+            response_data['intern'] = False
 
 
 

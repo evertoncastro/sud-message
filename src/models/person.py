@@ -37,8 +37,10 @@ class RegisterPerson(AuthMethods):
                 )
                 person.put()
                 response_data['message'] = 'Success registering Person'.decode('latin-1')
+                response_data['intern'] = True
         except:
             response_data['message'] = 'Error registering Person'.decode('latin-1')
+            response_data['intern'] = False
 
 
 class LoadPersonList(BaseClass):
@@ -94,8 +96,10 @@ class UpdatePerson(AuthMethods):
             message.put()
 
             response_data['message'] = 'Success updating message'.decode('latin-1')
+            response_data['intern'] = True
         except:
             response_data['message'] = 'Error updating message'.decode('latin-1')
+            response_data['intern'] = False
 
 
 class DropPerson(AuthMethods):
@@ -107,5 +111,7 @@ class DropPerson(AuthMethods):
             person_urlsafe.delete()
 
             response_data['message'] = 'Success droping person'.decode('latin-1')
+            response_data['intern'] = True
         except:
             response_data['message'] = 'Error droping person'.decode('latin-1')
+            response_data['intern'] = False

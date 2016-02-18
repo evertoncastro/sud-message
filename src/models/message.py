@@ -36,8 +36,10 @@ class RegisterMessage(AuthMethods):
                 )
                 msg.put()
                 response_data['message'] = 'Success registering message'.decode('latin-1')
+                response_data['intern'] = True
         except:
             response_data['message'] = 'Error registering message'.decode('latin-1')
+            esponse_data['intern'] = False
 
 
 class LoadMessageByUser(AuthMethodsResponse):
@@ -74,8 +76,9 @@ class LoadMessage(BaseClass):
         try:
             jsonMessage = {}
             jsonMessageList = []
-            query = Message.query()
+            query = Message.query().order(-Message.dateCreation)
             messagelist = query.fetch()
+
             for msg in messagelist:
                 if msg.key.id():
                     msg.id = msg.key.id()
@@ -83,6 +86,7 @@ class LoadMessage(BaseClass):
                 if msg.key.urlsafe():
                     msg.urlsafe = msg.key.urlsafe()
 
+                    dateCreation = msg.dateCreation.strftime('%d/%m/%Y')
 
                     jsonMessage = {"id": msg.id,
                                    "title": msg.title,
@@ -90,7 +94,8 @@ class LoadMessage(BaseClass):
                                    "image": msg.image,
                                    "personUrlSafe": msg.personUrlSafe,
                                    "urlsafe": msg.urlsafe,
-                                   "status": msg.status}
+                                   "status": msg.status,
+                                   "dateCreation": dateCreation}
 
                     jsonMessageList.append(jsonMessage)
 
@@ -128,8 +133,10 @@ class UpdateMessage(AuthMethods):
             message.put()
 
             response_data['message'] = 'Success updating message'.decode('latin-1')
+            response_data['intern'] = True
         except:
             response_data['message'] = 'Error updating message'.decode('latin-1')
+            response_data['intern'] = False
 
 
 class DropMessage(AuthMethods):
@@ -141,7 +148,9 @@ class DropMessage(AuthMethods):
             message_urlsafe.delete()
 
             response_data['message'] = 'Success droping message'.decode('latin-1')
+            response_data['intern'] = True
         except:
             response_data['message'] = 'Error droping message'.decode('latin-1')
+            response_data['intern'] = False
 
 
