@@ -58,7 +58,7 @@ class LoadUnityList(BaseClass):
                     jsonUnity = {"id": unity.id,
                                    "name": unity.name,
                                    "image": unity.image,
-                                   "urlsafe": unity.urlsafe,
+                                   "unityUrlSafe": unity.urlsafe,
                                    "status": unity.status,
                                    "dateCreation": dateCreation}
 

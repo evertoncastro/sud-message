@@ -1,8 +1,9 @@
 import webapp2
 import json
-from models.baseClass import BaseClass
+from models.baseClass import BaseClass, BaseClassAuth
 from google.appengine.ext import ndb
 from models.authentication import AuthMethods, AuthMethodsResponse
+from models.unity import Unity
 
 class PersonInfo(ndb.Model):
     dateCreation = ndb.DateTimeProperty(auto_now=True)
@@ -27,13 +28,23 @@ class RegisterPerson(AuthMethods):
             elif not received_json_data.get('image'):
                 response_data['status'] = 'PERSON INCOMPLETE'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
+            elif not received_json_data.get('unityUrlSafe'):
+                response_data['status'] = 'PERSON INCOMPLETE'
+                response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
 
             else:
+                unity_urlsafe = received_json_data.get('unityUrlSafe')
+                unity_urlsafe = ndb.Key(urlsafe=unity_urlsafe)
+                unity = unity_urlsafe.get()
+
+                keyUnity = unity.key
+
                 person = PersonInfo(
                     firstname=received_json_data.get('firstname'),
                     lastname=received_json_data.get('lastname'),
                     exibitionName=received_json_data.get('exibitionName'),
-                    image=received_json_data.get('image')
+                    image=received_json_data.get('image'),
+                    parent=keyUnity
                 )
                 person.put()
                 response_data['message'] = 'Success registering Person'.decode('latin-1')
@@ -70,6 +81,39 @@ class LoadPersonList(BaseClass):
             self.response.out.write(json.dumps(response_data))
         except:
             response_data['message'] = 'Error getting person list'.decode('latin-1')
+
+
+class LoadPersonByunity(BaseClassAuth):
+    def handle(self, received_json_data, response_data):
+        try:
+            unity_urlsafe = received_json_data.get('unityUrlSafe')
+            unity_urlsafe = ndb.Key(urlsafe=unity_urlsafe)
+            unity = unity_urlsafe.get()
+
+            unityId = unity.key.id()
+            jsonPerson = {}
+            jsonPersonList = []
+            personlist = PersonInfo.query(ancestor=unity.key).fetch()
+            for person in personlist:
+                if person.key.id():
+                    person.id = person.key.id()
+
+                if person.key.urlsafe():
+                    person.urlsafe = person.key.urlsafe()
+
+                    jsonPerson = {"id": person.id,
+                                   "firstname": person.firstname,
+                                   "lastname": person.lastname,
+                                   "image": person.image,
+                                   "exibitionName": person.exibitionName,
+                                   "personUrlSafe": person.urlsafe}
+
+                    jsonPersonList.append(jsonPerson)
+
+            response_data = jsonPersonList
+            self.response.out.write(json.dumps(response_data))
+        except:
+            response_data['message'] = 'Error getting message'.decode('latin-1')
 
 
 class UpdatePerson(AuthMethods):
