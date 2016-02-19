@@ -17,18 +17,10 @@ class RegisterUnity(AuthMethods):
             if not received_json_data.get('name'):
                 response_data['status'] = 'UNITY INCOMPLETE'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
-            if not received_json_data.get('image'):
-                response_data['status'] = 'UNITY INCOMPLETE'
-                response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
-            if not received_json_data.get('status'):
-                response_data['status'] = 'UNITY INCOMPLETE'
-                response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
 
             else:
                 unity = Unity(
-                    name=received_json_data.get('name'),
-                    image=received_json_data.get('image'),
-                    status=received_json_data.get('status')
+                    name=received_json_data.get('name')
                 )
                 unity.put()
                 response_data['message'] = 'Success registering unity'.decode('latin-1')
@@ -57,10 +49,7 @@ class LoadUnityList(BaseClass):
 
                     jsonUnity = {"id": unity.id,
                                    "name": unity.name,
-                                   "image": unity.image,
-                                   "unityUrlSafe": unity.urlsafe,
-                                   "status": unity.status,
-                                   "dateCreation": dateCreation}
+                                   "unityUrlSafe": unity.urlsafe}
 
                     jsonUnityList.append(jsonUnity)
 
@@ -79,15 +68,9 @@ class UpdateUnity(AuthMethods):
             unity = unity_urlsafe.get()
 
             name = received_json_data.get('name')
-            image = received_json_data.get('image')
-            status = received_json_data.get('status')
 
             if name:
                 unity.name = received_json_data.get('name')
-            if image:
-                unity.image = received_json_data.get('image')
-            if status:
-                unity.status = received_json_data.get('status')
 
             unity.put()
 
