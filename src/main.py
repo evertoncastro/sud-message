@@ -28,7 +28,7 @@ class PostHandler(webapp2.RequestHandler):
                         image= self.request.get('image'))
 
 
-mapeamento = [
+mapping = [
     ('/', PostHandler),
     ('/loadMessage', LoadMessage),
     ('/registerMessage', RegisterMessage),
@@ -48,9 +48,9 @@ mapeamento = [
     ('/registerEvent', RegisterEvent)
     ('/updateEvent', UpdateEvent)
     ('/dropEvent', DropEvent)
-    
+
 ]
 
 
-app = webapp2.WSGIApplication(mapeamento, debug=True)
+app = webapp2.WSGIApplication(mapping, debug=True)
 run_wsgi_app(app)
