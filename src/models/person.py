@@ -1,12 +1,13 @@
 import webapp2
 import json
+from datetime import datetime
 from models.baseClass import BaseClass, BaseClassAuth
 from google.appengine.ext import ndb
 from models.authentication import AuthMethods, AuthMethodsResponse
 from models.unity import Unity
 
 class PersonInfo(ndb.Model):
-    dateCreation = ndb.DateTimeProperty(auto_now=True)
+    dateCreation = ndb.DateTimeProperty(auto_now=False)
     image = ndb.StringProperty()
     firstname = ndb.StringProperty()
     lastname = ndb.StringProperty()
@@ -39,12 +40,14 @@ class RegisterPerson(AuthMethods):
                 response_data['intern'] = False
 
             else:
+                nowTime = datetime.now()
                 person = PersonInfo(
                     firstname=received_json_data.get('firstname'),
                     lastname=received_json_data.get('lastname'),
                     exibitionName=received_json_data.get('exibitionName'),
                     image=received_json_data.get('image'),
-                    unityName=received_json_data.get('unityName')
+                    unityName=received_json_data.get('unityName'),
+                    dateCreation = nowTime
                 )
                 person.put()
                 response_data['message'] = 'Success registering Person'.decode('latin-1')

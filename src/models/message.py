@@ -1,13 +1,15 @@
 from google.appengine.ext import ndb
 from models.baseClass import BaseClass
 from models.authentication import AuthMethods, AuthMethodsResponse
+from datetime import datetime
 import json
 import logging
 import webapp2
 
 
+
 class Message(ndb.Model):
-    dateCreation = ndb.DateTimeProperty(auto_now=True)
+    dateCreation = ndb.DateTimeProperty(auto_now=False)
     title = ndb.StringProperty()
     text = ndb.StringProperty()
     personUrlSafe = ndb.StringProperty()
@@ -26,13 +28,15 @@ class RegisterMessage(AuthMethods):
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
 
             else:
+                nowTime = datetime.now()
                 keyUser = user.getUserKey(user.get_id())
                 msg = Message(
                     title=received_json_data.get('title'),
                     text=received_json_data.get('text'),
                     personUrlSafe=received_json_data.get('personUrlSafe'),
                     image=received_json_data.get('image'),
-                    status=received_json_data.get('status')
+                    status=received_json_data.get('status'),
+                    dateCreation=nowTime
                 )
                 msg.put()
                 response_data['message'] = 'Success registering message'.decode('latin-1')
