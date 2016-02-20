@@ -26,7 +26,7 @@ class PostHandler(webapp2.RequestHandler):
                         email=email,
                         name= self.request.get('name'),
                         image= self.request.get('image'))
-       
+
 
 mapeamento = [
     ('/', PostHandler),
@@ -45,6 +45,10 @@ mapeamento = [
     ('/registerUnity', RegisterUnity),
     ('/loadUnityList', LoadUnityList),
     ('/updateUnity', UpdateUnity)
+    ('/registerEvent', RegisterEvent)
+    ('/updateEvent', UpdateEvent)
+    ('/dropEvent', DropEvent)
+    
 ]
 
 
