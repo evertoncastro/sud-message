@@ -11,7 +11,7 @@ import webapp2
 class Message(ndb.Model):
     dateCreation = ndb.DateTimeProperty(auto_now=False)
     title = ndb.StringProperty()
-    text = ndb.StringProperty()
+    text = ndb.TextProperty()
     personUrlSafe = ndb.StringProperty()
     image = ndb.StringProperty()
     status = ndb.StringProperty()
