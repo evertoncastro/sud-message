@@ -15,6 +15,7 @@ class Message(ndb.Model):
     personUrlSafe = ndb.StringProperty()
     image = ndb.StringProperty()
     status = ndb.StringProperty()
+    unityNumber = ndb.StringProperty()
 
 
 class RegisterMessage(AuthMethods):
@@ -23,7 +24,7 @@ class RegisterMessage(AuthMethods):
             if not received_json_data.get('title') or not received_json_data.get('text') or not received_json_data.get('status'):
                 response_data['status'] = 'MESSAGE INCOMPLETE'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
-            elif not received_json_data.get('personUrlSafe'):
+            elif not received_json_data.get('personUrlSafe')or not received_json_data.get('unityNumber'):
                 response_data['status'] = 'MESSAGE SHOULD BE BOUND WITH PERSON'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
 
@@ -41,6 +42,7 @@ class RegisterMessage(AuthMethods):
                     personUrlSafe=received_json_data.get('personUrlSafe'),
                     image=received_json_data.get('image'),
                     status=received_json_data.get('status'),
+                    unityNumber=received_json_data.get('unityNumber'),
                     dateCreation=nowTime
                 )
                 msg.put()
@@ -48,15 +50,16 @@ class RegisterMessage(AuthMethods):
                 response_data['intern'] = True
         except:
             response_data['message'] = 'Error registering message'.decode('latin-1')
-            esponse_data['intern'] = False
+            response_data['intern'] = False
 
 
 class LoadMessage(BaseClass):
     def handle(self, response_data):
         try:
+            unityNumber = self.request.get('unityNumber')
             jsonMessage = {}
             jsonMessageList = []
-            query = Message.query().order(-Message.dateCreation)
+            query = Message.query(Message.unityNumber==unityNumber).order(-Message.dateCreation)
             messagelist = query.fetch()
 
             for msg in messagelist:
@@ -75,6 +78,7 @@ class LoadMessage(BaseClass):
                                    "personUrlSafe": msg.personUrlSafe,
                                    "urlsafe": msg.urlsafe,
                                    "status": msg.status,
+                                   "unityNumber": msg.unityNumber,
                                    "dateCreation": dateCreation}
 
                     jsonMessageList.append(jsonMessage)
@@ -83,6 +87,41 @@ class LoadMessage(BaseClass):
             self.response.out.write(json.dumps(response_data))
         except:
             response_data['message'] = 'Error getting message'.decode('latin-1')
+
+
+# class LoadMessage(BaseClass):
+#     def handle(self, response_data):
+#         try:
+#             jsonMessage = {}
+#             jsonMessageList = []
+#             query = Message.query().order(-Message.dateCreation)
+#             messagelist = query.fetch()
+#
+#             for msg in messagelist:
+#                 if msg.key.id():
+#                     msg.id = msg.key.id()
+#
+#                 if msg.key.urlsafe():
+#                     msg.urlsafe = msg.key.urlsafe()
+#
+#                     dateCreation = msg.dateCreation.strftime('%d/%m/%Y')
+#
+#                     jsonMessage = {"id": msg.id,
+#                                    "title": msg.title,
+#                                    "text": msg.text,
+#                                    "image": msg.image,
+#                                    "personUrlSafe": msg.personUrlSafe,
+#                                    "urlsafe": msg.urlsafe,
+#                                    "status": msg.status,
+#                                    "unityNumber": msg.unityNumber,
+#                                    "dateCreation": dateCreation}
+#
+#                     jsonMessageList.append(jsonMessage)
+#
+#             response_data = jsonMessageList
+#             self.response.out.write(json.dumps(response_data))
+#         except:
+#             response_data['message'] = 'Error getting message'.decode('latin-1')
 
 
 

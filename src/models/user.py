@@ -41,6 +41,9 @@ class RegisterUser(BaseClass):
             elif not received_json_data['firstname'] and not received_json_data('lastname'):
                 response_data['status'] = 'INVALID_PARAMETER'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
+            elif not received_json_data.get('unityNumber'):
+                response_data['status'] = 'INVALID_PARAMETER'
+                response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
             else:
                 isOk = False
                 email = received_json_data['email']
@@ -49,7 +52,8 @@ class RegisterUser(BaseClass):
                                                password_raw=received_json_data['password'],
                                                email=email,
                                                firstname=received_json_data['firstname'],
-                                               lastname=received_json_data['lastname']
+                                               lastname=received_json_data['lastname'],
+                                               unityNumber=received_json_data['unityNumber']
                                                )
 
                 if not user:
@@ -86,12 +90,14 @@ class UpdateUser(BaseClass):
             else:
                 firstname = received_json_data['firstname']
                 lastname = received_json_data['lastname']
-                image = received_json_data['image']
+                unityNumber = received_json_data['unityNumber']
 
                 if firstname:
                     user.firstname = firstname
                 if lastname:
                     user.lastname = lastname
+                if unityNumber:
+                    user.unityNumber = unityNumber
 
                 user.put()
 
@@ -118,7 +124,7 @@ class DoLogin(BaseClass):
 
             response_data['token'] = token
             jsondata = {'firstname': u.firstname, 'lastname': u.lastname,
-                        'email': u.email, 'id': user_id}
+                        'email': u.email, 'id': user_id, 'unityNumber': u.unityNumber}
 
             response_data['user_data'] = jsondata
             response_data['intern'] = True

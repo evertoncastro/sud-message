@@ -13,7 +13,7 @@ class PersonInfo(ndb.Model):
     lastname = ndb.StringProperty()
     exibitionName = ndb.StringProperty()
     unityName = ndb.StringProperty()
-
+    unityNumber = ndb.StringProperty()
 
 class RegisterPerson(AuthMethods):
     def handle_auth(self, received_json_data, response_data, user):
@@ -38,6 +38,10 @@ class RegisterPerson(AuthMethods):
                 response_data['status'] = 'PERSON INCOMPLETE'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
                 response_data['intern'] = False
+            elif not received_json_data.get('unityNumber'):
+                response_data['status'] = 'PERSON INCOMPLETE'
+                response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
+                response_data['intern'] = False
 
             else:
                 if received_json_data.get('thisDate'):
@@ -52,6 +56,7 @@ class RegisterPerson(AuthMethods):
                     exibitionName=received_json_data.get('exibitionName'),
                     image=received_json_data.get('image'),
                     unityName=received_json_data.get('unityName'),
+                    unityNumber=received_json_data.get('unityNumber'),
                     dateCreation = nowTime
                 )
                 person.put()
@@ -65,9 +70,10 @@ class RegisterPerson(AuthMethods):
 class LoadPersonList(BaseClass):
     def handle(self, response_data):
         try:
+            unityNumber = self.request.get('unityNumber')
             jsonPerson = {}
             jsonPersonList = []
-            query = PersonInfo.query().order(PersonInfo.dateCreation)
+            query = PersonInfo.query(PersonInfo.unityNumber==unityNumber).order(PersonInfo.dateCreation)
             personlist = query.fetch()
             for person in personlist:
                 if person.key.id():
@@ -82,7 +88,8 @@ class LoadPersonList(BaseClass):
                                    "image": person.image,
                                    "exibitionName": person.exibitionName,
                                    "personUrlSafe": person.urlsafe,
-                                   "unityName": person.unityName}
+                                   "unityName": person.unityName,
+                                   "unityNumber": person.unityNumber}
 
                     jsonPersonList.append(jsonPerson)
 
@@ -92,13 +99,13 @@ class LoadPersonList(BaseClass):
             response_data['message'] = 'Error getting person list'.decode('latin-1')
 
 
-# class LoadPersonByunity(BaseClassAuth):
-#     def handle(self, received_json_data, response_data):
+# class LoadPersonList(BaseClass):
+#     def handle(self, response_data):
 #         try:
-#             unity_urlsafe = received_json_data.get('unityUrlSafe')
 #             jsonPerson = {}
 #             jsonPersonList = []
-#             personlist = PersonInfo.query(PersonInfo.unityUrlSafe==unity_urlsafe)
+#             query = PersonInfo.query().order(PersonInfo.dateCreation)
+#             personlist = query.fetch()
 #             for person in personlist:
 #                 if person.key.id():
 #                     person.id = person.key.id()
@@ -112,14 +119,14 @@ class LoadPersonList(BaseClass):
 #                                    "image": person.image,
 #                                    "exibitionName": person.exibitionName,
 #                                    "personUrlSafe": person.urlsafe,
-#                                    "unityUrlSafe": person.unityUrlSafe}
+#                                    "unityName": person.unityName}
 #
 #                     jsonPersonList.append(jsonPerson)
 #
 #             response_data = jsonPersonList
 #             self.response.out.write(json.dumps(response_data))
 #         except:
-#             response_data['message'] = 'Error getting message'.decode('latin-1')
+#             response_data['message'] = 'Error getting person list'.decode('latin-1')
 
 
 class UpdatePerson(AuthMethods):
@@ -134,7 +141,6 @@ class UpdatePerson(AuthMethods):
             lastname = received_json_data.get('lastname')
             exibitionName = received_json_data.get('exibitionName')
             image = received_json_data.get('image')
-            unityName = received_json_data.get('unityName')
 
             if lastname:
                 person.lastname = received_json_data.get('lastname')
@@ -144,8 +150,6 @@ class UpdatePerson(AuthMethods):
                 person.exibitionName = received_json_data.get('exibitionName')
             if image:
                 person.image = received_json_data.get('image')
-            if unityName:
-                person.unityName = received_json_data.get('unityName')
 
             person.put()
 
