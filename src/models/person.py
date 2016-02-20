@@ -40,7 +40,12 @@ class RegisterPerson(AuthMethods):
                 response_data['intern'] = False
 
             else:
-                nowTime = datetime.now()
+                if received_json_data.get('thisDate'):
+                    nowTime = received_json_data.get('thisDate')
+                    nowTime = datetime.strptime(nowTime, "%d/%m/%Y %H:%M:%S")
+                else:
+                    nowTime = datetime.now()
+
                 person = PersonInfo(
                     firstname=received_json_data.get('firstname'),
                     lastname=received_json_data.get('lastname'),

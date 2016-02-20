@@ -28,7 +28,12 @@ class RegisterMessage(AuthMethods):
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
 
             else:
-                nowTime = datetime.now()
+                if received_json_data.get('thisDate'):
+                    nowTime = received_json_data.get('thisDate')
+                    nowTime = datetime.strptime(nowTime, "%d/%m/%Y %H:%M:%S")
+                else:
+                    nowTime = datetime.now()
+
                 keyUser = user.getUserKey(user.get_id())
                 msg = Message(
                     title=received_json_data.get('title'),
@@ -44,35 +49,6 @@ class RegisterMessage(AuthMethods):
         except:
             response_data['message'] = 'Error registering message'.decode('latin-1')
             esponse_data['intern'] = False
-
-
-class LoadMessageByUser(AuthMethodsResponse):
-    def handle_auth(self, received_json_data, response_data, user):
-        try:
-            id_user = user.get_id()
-            jsonMessage = {}
-            jsonMessageList = []
-            messagelist = Message.query(ancestor=user.getUserKey(id_user)).fetch()
-            for msg in messagelist:
-                if msg.key.id():
-                    msg.id = msg.key.id()
-
-                if msg.key.urlsafe():
-                    msg.urlsafe = msg.key.urlsafe()
-
-                    jsonMessage = {"id": msg.id,
-                                   "title": msg.title,
-                                   "text": msg.text,
-                                   "image": msg.image,
-                                   "personUrlSafe": msg.personUrlSafe,
-                                   "urlsafe": msg.urlsafe}
-
-                    jsonMessageList.append(jsonMessage)
-
-            response_data = jsonMessageList
-            self.response.out.write(json.dumps(response_data))
-        except:
-            response_data['message'] = 'Error getting message'.decode('latin-1')
 
 
 class LoadMessage(BaseClass):
@@ -158,3 +134,30 @@ class DropMessage(AuthMethods):
             response_data['intern'] = False
 
 
+class LoadMessageByUser(AuthMethodsResponse):
+    def handle_auth(self, received_json_data, response_data, user):
+        try:
+            id_user = user.get_id()
+            jsonMessage = {}
+            jsonMessageList = []
+            messagelist = Message.query(ancestor=user.getUserKey(id_user)).fetch()
+            for msg in messagelist:
+                if msg.key.id():
+                    msg.id = msg.key.id()
+
+                if msg.key.urlsafe():
+                    msg.urlsafe = msg.key.urlsafe()
+
+                    jsonMessage = {"id": msg.id,
+                                   "title": msg.title,
+                                   "text": msg.text,
+                                   "image": msg.image,
+                                   "personUrlSafe": msg.personUrlSafe,
+                                   "urlsafe": msg.urlsafe}
+
+                    jsonMessageList.append(jsonMessage)
+
+            response_data = jsonMessageList
+            self.response.out.write(json.dumps(response_data))
+        except:
+            response_data['message'] = 'Error getting message'.decode('latin-1')
