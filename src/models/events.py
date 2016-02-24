@@ -53,6 +53,41 @@ class RegisterEvent(AuthMethods):
             response_data['intern'] = False
 
 
+class LoadEvent(BaseClass):
+    def handle(self, response_data):
+        try:
+            unityNumber = self.request.get('unityNumber')
+            jsonEvent = {}
+            jsonEventList = []
+            query = Event.query(Event.unityNumber==unityNumber).order(Event.date)
+            eventList = query.fetch()
+
+            for event in eventList:
+                if event.key.id():
+                    event.id = event.key.id()
+
+                if event.key.urlsafe():
+                    event.urlsafe = event.key.urlsafe()
+
+                    date = event.date.strftime('%d/%m/%Y')
+
+                    jsonEvent = {"id": event.id,
+                                   "title": event.title,
+                                   "description": event.description,
+                                   "date": date,
+                                   "time": event.time,
+                                   "place": event.place,
+                                   "image": event.image,
+                                   "unityNumber": event.unityNumber,
+                                   "eventUrlSafe": event.urlsafe}
+
+                    jsonEventList.append(jsonEvent)
+
+            response_data = jsonEventList
+            self.response.out.write(json.dumps(response_data))
+        except:
+            response_data['message'] = 'Error getting event list'.decode('latin-1')
+
 
 
 class UpdateEvent():

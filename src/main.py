@@ -7,7 +7,7 @@ from models.message import RegisterMessage, LoadMessage, LoadMessageByUser, Upda
 from models.user import RegisterUser, DoLogin, UpdateUser, User
 from models.person import RegisterPerson, LoadPersonList, UpdatePerson, DropPerson
 from models.unity import UpdateUnity, LoadUnityList, RegisterUnity
-from models.events import RegisterEvent, UpdateEvent, DropEvent
+from models.events import RegisterEvent, UpdateEvent, LoadEvent, DropEvent
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -48,7 +48,8 @@ mapping = [
     ('/updateUnity', UpdateUnity),
     ('/registerEvent', RegisterEvent),
     ('/updateEvent', UpdateEvent),
-    ('/dropEvent', DropEvent)
+    ('/dropEvent', DropEvent),
+    ('/loadEvent', LoadEvent)
 
 ]
 

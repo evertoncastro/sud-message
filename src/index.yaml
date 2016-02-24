@@ -10,6 +10,17 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: Event
+  properties:
+  - name: unityNumber
+  - name: date
+
+- kind: Event
+  properties:
+  - name: unityNumber
+  - name: date
+    direction: desc
+
 - kind: Message
   properties:
   - name: unityNumber
