@@ -10,6 +10,7 @@ import webapp2
 class Event(ndb.Model):
     dateCreation = ndb.DateTimeProperty(auto_now=True)
     title = ndb.StringProperty()
+    description = ndb.StringProperty()
     date = ndb.DateTimeProperty()
     time = ndb.StringProperty()
     place = ndb.StringProperty()
@@ -26,7 +27,6 @@ class RegisterEvent(AuthMethods):
             elif not received_json_data.get('time')or not received_json_data.get('unityNumber'):
                 response_data['status'] = 'MESSAGE SHOULD BE BOUND WITH PERSON'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
-
             else:
                 if received_json_data.get('date'):
                     nowTime = received_json_data.get('date')
@@ -38,6 +38,7 @@ class RegisterEvent(AuthMethods):
                 event = Event(
                     title=received_json_data.get('title'),
                     date=nowTime,
+                    description=received_json_data.get('description'),
                     time=received_json_data.get('time'),
                     place=received_json_data.get('place'),
                     image=received_json_data.get('image'),
