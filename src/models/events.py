@@ -89,10 +89,44 @@ class LoadEvent(BaseClass):
             response_data['message'] = 'Error getting event list'.decode('latin-1')
 
 
+class UpdateEvent(AuthMethods):
+    def handle_auth(self, received_json_data, response_data, user):
+        try:
+            event_urlsafe = received_json_data.get('eventUrlSafe')
+            event_urlsafe = ndb.Key(urlsafe=event_urlsafe)
+            event = event_urlsafe.get()
 
-class UpdateEvent():
-    def fakemethod(self):
-        return True
+            title = received_json_data.get('title')
+            description = received_json_data.get('description')
+            date = received_json_data.get('date')
+            time = received_json_data.get('time')
+            place = received_json_data.get('place')
+            image = received_json_data.get('image')
+
+            if title:
+                event.title = received_json_data.get('title')
+            if description:
+                event.description = received_json_data.get('description')
+            if date:
+                eventDate = received_json_data.get('date')
+                eventDate = datetime.strptime(eventDate, "%d/%m/%Y %H:%M:%S")
+                event.date = eventDate
+            if time:
+                event.time = received_json_data.get('time')
+            if place:
+                event.place = received_json_data.get('place')
+            if image:
+                event.image = received_json_data.get('image')
+
+            event.put()
+
+            response_data['message'] = 'Success updating event'.decode('latin-1')
+            response_data['intern'] = True
+
+        except:
+            response_data['message'] = 'Error updating event'.decode('latin-1')
+            response_data['intern'] = False
+
 
 class DropEvent():
     def fakemethod(self):
