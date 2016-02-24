@@ -29,15 +29,15 @@ class RegisterEvent(AuthMethods):
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
             else:
                 if received_json_data.get('date'):
-                    nowTime = received_json_data.get('date')
-                    nowTime = datetime.strptime(nowTime, "%d/%m/%Y %H:%M:%S")
+                    eventDate = received_json_data.get('date')
+                    eventDate = datetime.strptime(eventDate, "%d/%m/%Y %H:%M:%S")
                 else:
-                    nowTime = datetime.now()
+                    eventDate = datetime.now()
 
                 keyUser = user.getUserKey(user.get_id())
                 event = Event(
                     title=received_json_data.get('title'),
-                    date=nowTime,
+                    date=eventDate,
                     description=received_json_data.get('description'),
                     time=received_json_data.get('time'),
                     place=received_json_data.get('place'),
@@ -128,7 +128,17 @@ class UpdateEvent(AuthMethods):
             response_data['intern'] = False
 
 
-class DropEvent():
-    def fakemethod(self):
-        return True
 
+class DropEvent(AuthMethods):
+    def handle_auth(self, received_json_data, response_data, user):
+        try:
+            message_urlsafe = received_json_data.get('eventUrlSafe')
+            message_urlsafe = ndb.Key(urlsafe=message_urlsafe)
+
+            message_urlsafe.delete()
+
+            response_data['message'] = 'Success droping event'.decode('latin-1')
+            response_data['intern'] = True
+        except:
+            response_data['message'] = 'Error droping event'.decode('latin-1')
+            response_data['intern'] = False
