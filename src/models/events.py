@@ -75,6 +75,7 @@ class LoadEvent(BaseClass):
                                    "title": event.title,
                                    "description": event.description,
                                    "date": date,
+                                   "dateShow": date,
                                    "time": event.time,
                                    "place": event.place,
                                    "image": event.image,
