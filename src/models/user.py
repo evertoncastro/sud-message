@@ -17,7 +17,7 @@ class User(webapp2_extras.appengine.auth.models.User):
     @classmethod
     def getUserKey(cls, user_id):
         user_key = model.Key(cls, user_id)
-
+        
         return user_key
 
     @classmethod
@@ -133,9 +133,4 @@ class DoLogin(BaseClass):
             response_data['desc'] = 'E-mail ou senha invalidos'.decode('latin-1')
             logging.info('Login failed for user %s because of %s', email, type(e))
             response_data['intern'] = False
-
-
-
-
-
-
+            

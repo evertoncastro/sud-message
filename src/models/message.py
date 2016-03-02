@@ -7,7 +7,6 @@ import logging
 import webapp2
 
 
-
 class Message(ndb.Model):
     dateCreation = ndb.DateTimeProperty(auto_now=False)
     title = ndb.StringProperty()
@@ -15,6 +14,7 @@ class Message(ndb.Model):
     personUrlSafe = ndb.StringProperty()
     image = ndb.StringProperty()
     status = ndb.StringProperty()
+    display = ndb.StringProperty()
     unityNumber = ndb.StringProperty()
 
 
@@ -24,7 +24,7 @@ class RegisterMessage(AuthMethods):
             if not received_json_data.get('title') or not received_json_data.get('text') or not received_json_data.get('status'):
                 response_data['status'] = 'MESSAGE INCOMPLETE'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
-            elif not received_json_data.get('personUrlSafe')or not received_json_data.get('unityNumber'):
+            elif not received_json_data.get('personUrlSafe')or not received_json_data.get('unityNumber') or not received_json_data.get('display'):
                 response_data['status'] = 'MESSAGE SHOULD BE BOUND WITH PERSON'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
 
@@ -42,6 +42,7 @@ class RegisterMessage(AuthMethods):
                     personUrlSafe=received_json_data.get('personUrlSafe'),
                     image=received_json_data.get('image'),
                     status=received_json_data.get('status'),
+                    display=received_json_data.get('display'),
                     unityNumber=received_json_data.get('unityNumber'),
                     dateCreation=nowTime
                 )
@@ -78,6 +79,7 @@ class LoadMessage(BaseClass):
                                    "personUrlSafe": msg.personUrlSafe,
                                    "urlsafe": msg.urlsafe,
                                    "status": msg.status,
+                                   "display": msg.display,
                                    "unityNumber": msg.unityNumber,
                                    "dateCreation": dateCreation}
 
@@ -136,6 +138,7 @@ class UpdateMessage(AuthMethods):
             text = received_json_data.get('text')
             image = received_json_data.get('image')
             status = received_json_data.get('status')
+            display = received_json_data.get('display')
             personUrlSafe = received_json_data.get('personUrlSafe')
 
             if title:
@@ -146,6 +149,8 @@ class UpdateMessage(AuthMethods):
                 message.image = received_json_data.get('image')
             if status:
                 message.status = received_json_data.get('status')
+            if display:
+                message.display = received_json_data.get('display')    
             if personUrlSafe:
                 message.personUrlSafe = received_json_data.get('personUrlSafe')
 
