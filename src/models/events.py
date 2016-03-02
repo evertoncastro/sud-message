@@ -15,6 +15,7 @@ class Event(ndb.Model):
     time = ndb.StringProperty()
     place = ndb.StringProperty()
     image = ndb.StringProperty()
+    display = ndb.StringProperty()
     unityNumber = ndb.StringProperty()
 
 
@@ -24,7 +25,7 @@ class RegisterEvent(AuthMethods):
             if not received_json_data.get('title') or not received_json_data.get('place') or not received_json_data.get('date'):
                 response_data['status'] = 'MESSAGE INCOMPLETE'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
-            elif not received_json_data.get('time')or not received_json_data.get('unityNumber'):
+            elif not received_json_data.get('time')or not received_json_data.get('unityNumber') or not received_json_data.get('display'):
                 response_data['status'] = 'MESSAGE SHOULD BE BOUND WITH PERSON'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
             else:
@@ -42,6 +43,7 @@ class RegisterEvent(AuthMethods):
                     time=received_json_data.get('time'),
                     place=received_json_data.get('place'),
                     image=received_json_data.get('image'),
+                    display=received_json_data.get('display'),
                     unityNumber=received_json_data.get('unityNumber')
                 )
 
@@ -79,6 +81,7 @@ class LoadEvent(BaseClass):
                                    "time": event.time,
                                    "place": event.place,
                                    "image": event.image,
+                                   "display": event.display,
                                    "unityNumber": event.unityNumber,
                                    "eventUrlSafe": event.urlsafe}
 
@@ -103,6 +106,7 @@ class UpdateEvent(AuthMethods):
             time = received_json_data.get('time')
             place = received_json_data.get('place')
             image = received_json_data.get('image')
+            display = received_json_data.get('display')
 
             if title:
                 event.title = received_json_data.get('title')
@@ -118,6 +122,8 @@ class UpdateEvent(AuthMethods):
                 event.place = received_json_data.get('place')
             if image:
                 event.image = received_json_data.get('image')
+            if display:
+                event.display = received_json_data.get('display')    
 
             event.put()
 
