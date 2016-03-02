@@ -149,3 +149,41 @@ class DropEvent(AuthMethods):
         except:
             response_data['message'] = 'Error droping event'.decode('latin-1')
             response_data['intern'] = False
+            
+            
+class ClientLoadEvent(BaseClass):
+    def handle(self, response_data):
+        try:
+            unityNumber = self.request.get('unityNumber')
+            jsonEvent = {}
+            jsonEventList = []
+            query = Event.query(Event.unityNumber==unityNumber).order(Event.date)
+            eventList = query.fetch()
+
+            for event in eventList:
+                if event.key.id():
+                    event.id = event.key.id()
+
+                if event.key.urlsafe():
+                    event.urlsafe = event.key.urlsafe()
+
+                    date = event.date.strftime('%d/%m/%Y')
+
+                    jsonEvent = {"title": event.title,
+                                   "description": event.description,
+                                   "date": date,
+                                   "dateShow": date,
+                                   "time": event.time,
+                                   "place": event.place,
+                                   "image": event.image,
+                                   "display": event.display,
+                                   "unityNumber": event.unityNumber}
+
+                    jsonEventList.append(jsonEvent)
+
+            response_data = jsonEventList
+            self.response.out.write(json.dumps(response_data))
+        except:
+            response_data['message'] = 'Error getting event list'.decode('latin-1')
+            
+            
