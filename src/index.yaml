@@ -12,6 +12,7 @@ indexes:
 
 - kind: Event
   properties:
+  - name: display
   - name: unityNumber
   - name: date
 
@@ -19,6 +20,26 @@ indexes:
   properties:
   - name: unityNumber
   - name: date
+
+- kind: Event
+  properties:
+  - name: unityNumber
+  - name: date
+    direction: desc
+
+- kind: Message
+  properties:
+  - name: display
+  - name: status
+  - name: unityNumber
+  - name: dateCreation
+    direction: desc
+
+- kind: Message
+  properties:
+  - name: status
+  - name: unityNumber
+  - name: dateCreation
     direction: desc
 
 - kind: Message

@@ -23,10 +23,10 @@ class RegisterEvent(AuthMethods):
     def handle_auth(self, received_json_data, response_data, user):
         try:
             if not received_json_data.get('title') or not received_json_data.get('place') or not received_json_data.get('date'):
-                response_data['status'] = 'MESSAGE INCOMPLETE'
+                response_data['status'] = 'EVENT INCOMPLETE'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
             elif not received_json_data.get('time')or not received_json_data.get('unityNumber') or not received_json_data.get('display'):
-                response_data['status'] = 'MESSAGE SHOULD BE BOUND WITH PERSON'
+                response_data['status'] = 'EVENT INCOMPLETE'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
             else:
                 if received_json_data.get('date'):
@@ -155,9 +155,14 @@ class ClientLoadEvent(BaseClass):
     def handle(self, response_data):
         try:
             unityNumber = self.request.get('unityNumber')
+            display = self.request.get('display')
+            if display:
+                query = Event.query(Event.unityNumber==unityNumber, Event.display==display).order(Event.date)
+            else:
+                query = Event.query(Event.unityNumber==unityNumber).order(Event.date)
+                    
             jsonEvent = {}
             jsonEventList = []
-            query = Event.query(Event.unityNumber==unityNumber).order(Event.date)
             eventList = query.fetch()
 
             for event in eventList:
