@@ -173,3 +173,25 @@ class DropPerson(AuthMethods):
         except:
             response_data['message'] = 'Error droping person'.decode('latin-1')
             response_data['intern'] = False
+            
+            
+class ClientLoadPerson(BaseClass):
+    def handle(self, response_data):
+        try:
+            person_urlsafe = self.request.get('personUrlSafe')
+            person_urlsafe = ndb.Key(urlsafe=person_urlsafe)
+            person = person_urlsafe.get()
+            
+            jsonPerson = {"firstname": person.firstname,
+                           "lastname": person.lastname,
+                           "image": person.image,
+                           "exibitionName": person.exibitionName,
+                           "unityName": person.unityName}
+    
+    
+            response_data = jsonPerson
+            self.response.out.write(json.dumps(response_data))
+        except:
+            response_data['message'] = 'Error getting person info'.decode('latin-1')
+         
+            

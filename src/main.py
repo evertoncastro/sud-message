@@ -5,7 +5,7 @@ import jinja2
 from google.appengine.ext.webapp.util import run_wsgi_app
 from models.message import RegisterMessage, LoadMessage, LoadMessageByUser, UpdateMessage, DropMessage, ClientLoadMessage
 from models.user import RegisterUser, DoLogin, UpdateUser, User
-from models.person import RegisterPerson, LoadPersonList, UpdatePerson, DropPerson
+from models.person import RegisterPerson, LoadPersonList, UpdatePerson, DropPerson, ClientLoadPerson
 from models.unity import UpdateUnity, LoadUnityList, RegisterUnity
 from models.events import RegisterEvent, UpdateEvent, LoadEvent, DropEvent, ClientLoadEvent
 
@@ -51,7 +51,8 @@ mapping = [
     ('/dropEvent', DropEvent),
     ('/loadEvent', LoadEvent),
     ('/clientLoadEvent', ClientLoadEvent),
-    ('/clientLoadMessage', ClientLoadMessage)
+    ('/clientLoadMessage', ClientLoadMessage),
+    ('/clientLoadPerson', ClientLoadPerson)
 
 ]
 
