@@ -156,10 +156,11 @@ class ClientLoadEvent(BaseClass):
         try:
             unityNumber = self.request.get('unityNumber')
             display = self.request.get('display')
+            currentDate = datetime.now()
             if display:
-                query = Event.query(Event.unityNumber==unityNumber, Event.display==display).order(Event.date)
+                query = Event.query(Event.unityNumber==unityNumber, Event.display==display, Event.date>=currentDate).order(Event.date)
             else:
-                query = Event.query(Event.unityNumber==unityNumber).order(Event.date)
+                query = Event.query(Event.unityNumber==unityNumber, Event.date>=currentDate).order(Event.date)
                     
             jsonEvent = {}
             jsonEventList = []
