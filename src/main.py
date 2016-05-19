@@ -8,6 +8,7 @@ from models.user import RegisterUser, DoLogin, UpdateUser, User
 from models.person import RegisterPerson, LoadPersonList, UpdatePerson, DropPerson, ClientLoadPerson
 from models.unity import UpdateUnity, LoadUnityList, RegisterUnity
 from models.events import RegisterEvent, UpdateEvent, LoadEvent, DropEvent, ClientLoadEvent
+from models.missionary import RegisterMissionary, LoadMissionaryList, UpdateMissionary, DeleteMissionary, ClientLoadMissionaryList
 from models.contact import GetDeveloperContactList
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -50,6 +51,11 @@ mapping = [
     ('/registerEvent', RegisterEvent),
     ('/updateEvent', UpdateEvent),
     ('/dropEvent', DropEvent),
+    ('/registerMissionary', RegisterMissionary),
+    ('/loadMissionaryList', LoadMissionaryList),
+    ('/updateMissionary', UpdateMissionary),
+    ('/deleteMissionary', DeleteMissionary),
+    ('/clientLoadMissionaryList', ClientLoadMissionaryList),
     ('/loadEvent', LoadEvent),
     ('/clientLoadEvent', ClientLoadEvent),
     ('/clientLoadMessage', ClientLoadMessage),
