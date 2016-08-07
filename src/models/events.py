@@ -16,7 +16,7 @@ class Event(ndb.Model):
     place = ndb.StringProperty()
     image = ndb.StringProperty()
     display = ndb.StringProperty()
-    unityNumber = ndb.StringProperty()
+
 
 
 class RegisterEvent(AuthMethods):
@@ -25,7 +25,7 @@ class RegisterEvent(AuthMethods):
             if not received_json_data.get('title') or not received_json_data.get('place') or not received_json_data.get('date'):
                 response_data['status'] = 'EVENT INCOMPLETE'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
-            elif not received_json_data.get('time')or not received_json_data.get('unityNumber') or not received_json_data.get('display'):
+            elif not received_json_data.get('time') or not received_json_data.get('display'):
                 response_data['status'] = 'EVENT INCOMPLETE'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
             else:
@@ -43,8 +43,7 @@ class RegisterEvent(AuthMethods):
                     time=received_json_data.get('time'),
                     place=received_json_data.get('place'),
                     image=received_json_data.get('image'),
-                    display=received_json_data.get('display'),
-                    unityNumber=received_json_data.get('unityNumber')
+                    display=received_json_data.get('display')
                 )
 
                 event.put()
@@ -61,7 +60,7 @@ class LoadEvent(BaseClass):
             unityNumber = self.request.get('unityNumber')
             jsonEvent = {}
             jsonEventList = []
-            query = Event.query(Event.unityNumber==unityNumber).order(Event.date)
+            query = Event.query().order(-Event.date)
             eventList = query.fetch()
 
             for event in eventList:
@@ -82,7 +81,6 @@ class LoadEvent(BaseClass):
                                    "place": event.place,
                                    "image": event.image,
                                    "display": event.display,
-                                   "unityNumber": event.unityNumber,
                                    "eventUrlSafe": event.urlsafe}
 
                     jsonEventList.append(jsonEvent)
@@ -154,13 +152,12 @@ class DropEvent(AuthMethods):
 class ClientLoadEvent(BaseClass):
     def handle(self, response_data):
         try:
-            unityNumber = self.request.get('unityNumber')
             display = self.request.get('display')
             currentDate = datetime.now()
             if display:
-                query = Event.query(Event.unityNumber==unityNumber, Event.display==display, Event.date>=currentDate).order(Event.date)
+                query = Event.query(Event.display==display, Event.date>=currentDate).order(Event.date)
             else:
-                query = Event.query(Event.unityNumber==unityNumber, Event.date>=currentDate).order(Event.date)
+                query = Event.query(Event.date>=currentDate).order(Event.date)
                     
             jsonEvent = {}
             jsonEventList = []
@@ -182,8 +179,7 @@ class ClientLoadEvent(BaseClass):
                                    "time": event.time,
                                    "place": event.place,
                                    "image": event.image,
-                                   "display": event.display,
-                                   "unityNumber": event.unityNumber}
+                                   "display": event.display}
 
                     jsonEventList.append(jsonEvent)
 

@@ -16,3 +16,8 @@ libraries:
   version: latest
 - name: jinja2
   version: latest
+- name: ssl
+  version: latest  
+  
+env_variables:
+   GAE_USE_SOCKETS_HTTPLIB : 'true' 

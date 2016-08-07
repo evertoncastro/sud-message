@@ -61,34 +61,25 @@ class LoadUnityList(BaseClass):
             response_data['message'] = 'Error getting unity list'.decode('latin-1')
 
 
-# class LoadUnityList(BaseClass):
-#     def handle(self, response_data):
-#         try:
-#             jsonUnity = {}
-#             jsonUnityList = []
-#             query = Unity.query().order(Unity.dateCreation)
-#             unityList = query.fetch()
-#
-#             for unity in unityList:
-#                 if unity.key.id():
-#                     unity.id = unity.key.id()
-#
-#                 if unity.key.urlsafe():
-#                     unity.urlsafe = unity.key.urlsafe()
-#
-#                     dateCreation = unity.dateCreation.strftime('%d/%m/%Y')
-#
-#                     jsonUnity = {"id": unity.id,
-#                                    "name": unity.name,
-#                                    "number": unity.number,
-#                                    "unityUrlSafe": unity.urlsafe}
-#
-#                     jsonUnityList.append(jsonUnity)
-#
-#             response_data = jsonUnityList
-#             self.response.out.write(json.dumps(response_data))
-#         except:
-#             response_data['message'] = 'Error getting unity list'.decode('latin-1')
+class LoadFullUnityList(BaseClass):
+    def handle(self, response_data):
+        try:
+            jsonUnity = {}
+            jsonUnityList = []
+            query = Unity.query().order(Unity.dateCreation)
+            unityList = query.fetch()
+
+            for unity in unityList:
+                
+                    jsonUnity = {"name": unity.name,
+                                 "number": unity.number}
+
+                    jsonUnityList.append(jsonUnity)
+
+            response_data = jsonUnityList
+            self.response.out.write(json.dumps(response_data))
+        except:
+            response_data['message'] = 'Error getting unity list'.decode('latin-1')
 
 
 

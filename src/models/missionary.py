@@ -5,6 +5,10 @@ from models.baseClass import BaseClass, BaseClassAuth
 from google.appengine.ext import ndb
 from models.authentication import AuthMethods, AuthMethodsResponse
 from models.unity import Unity
+from imgurpython import ImgurClient
+from models.imagecloud import ImageCloudManager
+import requests
+import logging
 
 class Missionary(ndb.Model):
     dateCreation = ndb.DateTimeProperty(auto_now=True)
@@ -58,14 +62,16 @@ class RegisterMissionary(AuthMethods):
                 response_data['status'] = 'PERSON INCOMPLETE'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
                 response_data['intern'] = False 
-            
+        
 
             else:
+                imageUploaded = ImageCloudManager().upload(received_json_data.get('image'))
+                
                 missionary = Missionary(
                     firstname=received_json_data.get('firstname'),
                     lastname=received_json_data.get('lastname'),
                     exibitionName=received_json_data.get('exibitionName'),
-                    image=received_json_data.get('image'),
+                    image=imageUploaded,
                     unityName=received_json_data.get('unityName'),
                     mission=received_json_data.get('mission'),
                     email=received_json_data.get('email'),
@@ -117,8 +123,8 @@ class UpdateMissionary(AuthMethods):
             if not received_json_data.get('id'):
                 response_data['intern'] = False
                 response_data['message'] = "No id parameter received".decode('latin-1')
-            
-            else:    
+
+            else:
                 firstname=received_json_data.get('firstname'),
                 lastname=received_json_data.get('lastname'),
                 exibitionName=received_json_data.get('exibitionName'),
@@ -128,19 +134,22 @@ class UpdateMissionary(AuthMethods):
                 email=received_json_data.get('email'),
                 address=received_json_data.get('address'),
                 period_serving=received_json_data.get('period_serving')
-                
+
                 id = received_json_data.get('id')
                 missionary = Missionary.get_by_id(id)
-                if missionary:                 
-    
+
+                logging.info('IMAGE: ' + str(image))
+                if missionary:
                     if lastname:
                         missionary.lastname = received_json_data.get('lastname')
                     if firstname:
                         missionary.firstname = received_json_data.get('firstname')
                     if exibitionName:
                         missionary.exibitionName = received_json_data.get('exibitionName')
-                    if image:
-                        missionary.image = received_json_data.get('image')
+                    if len(str(image))>10:
+                        logging.info('CALLING_IMAGE_API')
+                        imageUploaded = ImageCloudManager().upload(image)
+                        missionary.image = imageUploaded
                     if unityName:
                         missionary.unityName = received_json_data.get('unityName')
                     if mission:
@@ -151,16 +160,16 @@ class UpdateMissionary(AuthMethods):
                         missionary.address = received_json_data.get('address')
                     if period_serving:
                         missionary.period_serving = received_json_data.get('period_serving')
-    
+
                         missionary.put()
-                        
+
                         response_data['message'] = 'Success updating missionary'.decode('latin-1')
                         response_data['intern'] = True
-                        
-                else:        
+
+                else:
                     response_data['message'] = 'Missionary not found'.decode('latin-1')
                     response_data['intern'] = False
-                
+
         except:
             response_data['message'] = 'Error updating missionary'.decode('latin-1')
             response_data['intern'] = False
