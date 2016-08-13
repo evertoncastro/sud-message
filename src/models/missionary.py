@@ -128,17 +128,15 @@ class UpdateMissionary(AuthMethods):
                 firstname=received_json_data.get('firstname'),
                 lastname=received_json_data.get('lastname'),
                 exibitionName=received_json_data.get('exibitionName'),
-                image=received_json_data.get('image'),
                 unityName=received_json_data.get('unityName'),
                 mission=received_json_data.get('mission'),
                 email=received_json_data.get('email'),
                 address=received_json_data.get('address'),
                 period_serving=received_json_data.get('period_serving')
-
                 id = received_json_data.get('id')
+
                 missionary = Missionary.get_by_id(id)
 
-                logging.info('IMAGE: ' + str(image))
                 if missionary:
                     if lastname:
                         missionary.lastname = received_json_data.get('lastname')
@@ -146,9 +144,12 @@ class UpdateMissionary(AuthMethods):
                         missionary.firstname = received_json_data.get('firstname')
                     if exibitionName:
                         missionary.exibitionName = received_json_data.get('exibitionName')
-                    if len(str(image))>10:
+                    if received_json_data.get('image'):
                         logging.info('CALLING_IMAGE_API')
-                        imageUploaded = ImageCloudManager().upload(image)
+                        try:
+                            imageUploaded = ImageCloudManager().upload(received_json_data.get('image'))
+                        except Exception as e:
+                            logging.error(e.message)
                         missionary.image = imageUploaded
                     if unityName:
                         missionary.unityName = received_json_data.get('unityName')
