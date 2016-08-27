@@ -5,6 +5,7 @@ from models.baseClass import BaseClass, BaseClassAuth
 from google.appengine.ext import ndb
 from models.authentication import AuthMethods, AuthMethodsResponse
 from models.unity import Unity
+from models.imagecloud import ImageCloudManager
 
 class PersonInfo(ndb.Model):
     dateCreation = ndb.DateTimeProperty(auto_now=False)
@@ -50,11 +51,13 @@ class RegisterPerson(AuthMethods):
                 else:
                     nowTime = datetime.now()
 
+                imageUploaded = ImageCloudManager().upload(received_json_data.get('image'))
+
                 person = PersonInfo(
                     firstname=received_json_data.get('firstname'),
                     lastname=received_json_data.get('lastname'),
                     exibitionName=received_json_data.get('exibitionName'),
-                    image=received_json_data.get('image'),
+                    image=imageUploaded,
                     unityName=received_json_data.get('unityName'),
                     calling=received_json_data.get('calling'),
                     dateCreation = nowTime
@@ -109,7 +112,6 @@ class UpdatePerson(AuthMethods):
             firstname = received_json_data.get('firstname')
             lastname = received_json_data.get('lastname')
             exibitionName = received_json_data.get('exibitionName')
-            image = received_json_data.get('image')
             unityName = received_json_data.get('unityName')
             calling = received_json_data.get('calling')
 
@@ -119,8 +121,9 @@ class UpdatePerson(AuthMethods):
                 person.firstname = received_json_data.get('firstname')
             if exibitionName:
                 person.exibitionName = received_json_data.get('exibitionName')
-            if image:
-                person.image = received_json_data.get('image')
+            if received_json_data.get('image'):
+                imageUploaded = ImageCloudManager().upload(received_json_data.get('image'))
+                person.image = imageUploaded
             if unityName:
                 person.unityName = received_json_data.get('unityName')    
             if calling:

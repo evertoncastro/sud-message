@@ -146,10 +146,7 @@ class UpdateMissionary(AuthMethods):
                         missionary.exibitionName = received_json_data.get('exibitionName')
                     if received_json_data.get('image'):
                         logging.info('CALLING_IMAGE_API')
-                        try:
-                            imageUploaded = ImageCloudManager().upload(received_json_data.get('image'))
-                        except Exception as e:
-                            logging.error(e.message)
+                        imageUploaded = ImageCloudManager().upload(received_json_data.get('image'))
                         missionary.image = imageUploaded
                     if unityName:
                         missionary.unityName = received_json_data.get('unityName')

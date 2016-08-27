@@ -2,6 +2,7 @@ from google.appengine.ext import ndb
 from models.baseClass import BaseClass
 from datetime import datetime
 from models.authentication import AuthMethods, AuthMethodsResponse
+from models.imagecloud import ImageCloudManager
 import json
 import logging
 import webapp2
@@ -29,6 +30,11 @@ class RegisterEvent(AuthMethods):
                 response_data['status'] = 'EVENT INCOMPLETE'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
             else:
+                imageUploaded = ''
+                if received_json_data.get('image'):
+                    imageUploaded = ImageCloudManager().upload(received_json_data.get('image'))
+
+
                 if received_json_data.get('date'):
                     eventDate = received_json_data.get('date')
                     eventDate = datetime.strptime(eventDate, "%d/%m/%Y %H:%M:%S")
@@ -42,7 +48,7 @@ class RegisterEvent(AuthMethods):
                     description=received_json_data.get('description'),
                     time=received_json_data.get('time'),
                     place=received_json_data.get('place'),
-                    image=received_json_data.get('image'),
+                    image=imageUploaded,
                     display=received_json_data.get('display')
                 )
 
@@ -103,7 +109,6 @@ class UpdateEvent(AuthMethods):
             date = received_json_data.get('date')
             time = received_json_data.get('time')
             place = received_json_data.get('place')
-            image = received_json_data.get('image')
             display = received_json_data.get('display')
 
             if title:
@@ -118,8 +123,9 @@ class UpdateEvent(AuthMethods):
                 event.time = received_json_data.get('time')
             if place:
                 event.place = received_json_data.get('place')
-            if image:
-                event.image = received_json_data.get('image')
+            if received_json_data.get('image'):
+                imageUploaded = ImageCloudManager().upload(received_json_data.get('image'))
+                event.image = imageUploaded
             if display:
                 event.display = received_json_data.get('display')    
 
