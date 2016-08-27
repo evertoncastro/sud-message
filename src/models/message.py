@@ -12,9 +12,9 @@ class Message(ndb.Model):
     dateCreation = ndb.DateTimeProperty(auto_now=False)
     title = ndb.StringProperty()
     text = ndb.TextProperty()
-    personUrlSafe = ndb.StringProperty()
+    person_id = ndb.StringProperty()
     image = ndb.StringProperty()
-    status = ndb.StringProperty()
+    status = ndb.IntegerProperty()
     display = ndb.StringProperty()
 
 class RegisterMessage(AuthMethods):
@@ -23,12 +23,14 @@ class RegisterMessage(AuthMethods):
             if not received_json_data.get('title') or not received_json_data.get('text') or not received_json_data.get('status'):
                 response_data['status'] = 'MESSAGE INCOMPLETE'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
-            elif not received_json_data.get('personUrlSafe')or not received_json_data.get('display'):
+            elif not received_json_data.get('person_id')or not received_json_data.get('display'):
                 response_data['status'] = 'MESSAGE INCOMPLETE'
                 response_data['desc'] = "Erro de comunicacao com o servidor".decode('latin-1')
 
             else:
-                imageUploaded = ImageCloudManager().upload(received_json_data.get('image'))
+                imageUploaded = ''
+                if received_json_data.get('image'):
+                    imageUploaded = ImageCloudManager().upload(received_json_data.get('image'))
                 
                 if received_json_data.get('thisDate'):
                     nowTime = received_json_data.get('thisDate')
@@ -36,33 +38,26 @@ class RegisterMessage(AuthMethods):
                 else:
                     nowTime = datetime.now()
 
-                keyUser = user.getUserKey(user.get_id())
                 msg = Message(
                     title=received_json_data.get('title'),
                     text=received_json_data.get('text'),
-                    personUrlSafe=received_json_data.get('personUrlSafe'),
+                    person_id=str(received_json_data.get('person_id')),
                     image=imageUploaded,
-                    status=received_json_data.get('status'),
+                    status=int(received_json_data.get('status')),
                     display=received_json_data.get('display'),
                     dateCreation=nowTime
                 )
                 msg.put()
                 response_data['message'] = 'Success registering message'.decode('latin-1')
                 response_data['intern'] = True
-        except:
-            if ErrorUploadImage:
-                response_data['message'] = 'Error uploading image'.decode('latin-1')
-                response_data['intern'] = False
-            else:    
-                response_data['message'] = 'Error registering message'.decode('latin-1')
-                response_data['intern'] = False
+
+        except Exception as e:
+            raise e
 
 
 class LoadMessage(BaseClass):
     def handle(self, response_data):
         try:
-            unityNumber = self.request.get('unityNumber')
-            jsonMessage = {}
             jsonMessageList = []
             query = Message.query().order(-Message.dateCreation)
             messagelist = query.fetch()
@@ -72,7 +67,6 @@ class LoadMessage(BaseClass):
                     msg.id = msg.key.id()
 
                 if msg.key.urlsafe():
-                    msg.urlsafe = msg.key.urlsafe()
 
                     dateCreation = msg.dateCreation.strftime('%d/%m/%Y')
 
@@ -80,8 +74,7 @@ class LoadMessage(BaseClass):
                                    "title": msg.title,
                                    "text": msg.text,
                                    "image": msg.image,
-                                   "personUrlSafe": msg.personUrlSafe,
-                                   "urlsafe": msg.urlsafe,
+                                   "person_id": int(msg.person_id),
                                    "status": msg.status,
                                    "display": msg.display,
                                    "dateCreation": dateCreation}
@@ -98,31 +91,28 @@ class LoadMessage(BaseClass):
 class UpdateMessage(AuthMethods):
     def handle_auth(self, received_json_data, response_data, user):
         try:
-            message_urlsafe = received_json_data.get('urlsafe')
-            message_urlsafe = ndb.Key(urlsafe=message_urlsafe)
-            message = message_urlsafe.get()
+            id = received_json_data.get('id')
+            message = Message.get_by_id(id)
 
             title = received_json_data.get('title')
             text = received_json_data.get('text')
-            image = received_json_data.get('image')
-            newimage = received_json_data.get('newimage')
             status = received_json_data.get('status')
             display = received_json_data.get('display')
-            personUrlSafe = received_json_data.get('personUrlSafe')
+            person_id = received_json_data.get('person_id')
 
             if title:
                 message.title = received_json_data.get('title')
             if text:
                 message.text = received_json_data.get('text')
-            if image and newimage:                
+            if received_json_data.get('image'):
                 imageUploaded = ImageCloudManager().upload(received_json_data.get('image'))
                 message.image = imageUploaded
             if status:
                 message.status = received_json_data.get('status')
             if display:
                 message.display = received_json_data.get('display')    
-            if personUrlSafe:
-                message.personUrlSafe = received_json_data.get('personUrlSafe')
+            if person_id:
+                message.person_id = str(received_json_data.get('person_id'))
 
             message.put()
 
@@ -136,61 +126,29 @@ class UpdateMessage(AuthMethods):
 class DropMessage(AuthMethods):
     def handle_auth(self, received_json_data, response_data, user):
         try:
-            message_urlsafe = received_json_data.get('urlsafe')
-            message_urlsafe = ndb.Key(urlsafe=message_urlsafe)
-
-            message_urlsafe.delete()
+            id = received_json_data.get('id')
+            message = Message.get_by_id(id)
+            key = message.key
+            key.delete()
 
             response_data['message'] = 'Success droping message'.decode('latin-1')
             response_data['intern'] = True
-        except:
-            response_data['message'] = 'Error droping message'.decode('latin-1')
-            response_data['intern'] = False
+        except Exception as e:
+            raise e
 
-
-class LoadMessageByUser(AuthMethodsResponse):
-    def handle_auth(self, received_json_data, response_data, user):
-        try:
-            id_user = user.get_id()
-            jsonMessage = {}
-            jsonMessageList = []
-            messagelist = Message.query(ancestor=user.getUserKey(id_user)).fetch()
-            for msg in messagelist:
-                if msg.key.id():
-                    msg.id = msg.key.id()
-
-                if msg.key.urlsafe():
-                    msg.urlsafe = msg.key.urlsafe()
-
-                    jsonMessage = {"id": msg.id,
-                                   "title": msg.title,
-                                   "text": msg.text,
-                                   "image": msg.image,
-                                   "personUrlSafe": msg.personUrlSafe,
-                                   "urlsafe": msg.urlsafe}
-
-                    jsonMessageList.append(jsonMessage)
-
-            response_data = jsonMessageList
-            self.response.out.write(json.dumps(response_data))
-        except:
-            response_data['message'] = 'Error getting message'.decode('latin-1')
-            
             
 class ClientLoadMessage(BaseClass):
     def handle(self, response_data):
         try:
-            unityNumber = self.request.get('unityNumber')
             display = self.request.get('display')
-            status = '1'
+            status = 1
             
             if display:
-                query = Message.query(Message.status==status, Message.display==display).order(-Message.dateCreation)
+                query = Message.query(Message.status == status, Message.display==display)
             else:    
-                query = Message.query(Message.status==status).order(-Message.dateCreation)
-            
+                query = Message.query(Message.status == status)
+
             messagelist = query.fetch()
-            jsonMessage = {}
             jsonMessageList = []
 
             for msg in messagelist:
@@ -206,8 +164,7 @@ class ClientLoadMessage(BaseClass):
                                    "title": msg.title,
                                    "text": msg.text,
                                    "image": msg.image,
-                                   "personUrlSafe": msg.personUrlSafe,
-                                   "urlsafe": msg.urlsafe,
+                                   "person_id": msg.person_id,
                                    "status": msg.status,
                                    "display": msg.display,
                                    "dateCreation": dateCreation}
@@ -216,5 +173,6 @@ class ClientLoadMessage(BaseClass):
 
             response_data = jsonMessageList
             self.response.out.write(json.dumps(response_data))
-        except:
-            response_data['message'] = 'Error getting message'.decode('latin-1')            
+        except Exception as e:
+            logging.critical('ERROR LOADING CLIENT MESSAGES')
+            raise e

@@ -63,8 +63,6 @@ class RegisterEvent(AuthMethods):
 class LoadEvent(BaseClass):
     def handle(self, response_data):
         try:
-            unityNumber = self.request.get('unityNumber')
-            jsonEvent = {}
             jsonEventList = []
             query = Event.query().order(-Event.date)
             eventList = query.fetch()
@@ -86,8 +84,7 @@ class LoadEvent(BaseClass):
                                    "time": event.time,
                                    "place": event.place,
                                    "image": event.image,
-                                   "display": event.display,
-                                   "eventUrlSafe": event.urlsafe}
+                                   "display": event.display}
 
                     jsonEventList.append(jsonEvent)
 
@@ -100,9 +97,8 @@ class LoadEvent(BaseClass):
 class UpdateEvent(AuthMethods):
     def handle_auth(self, received_json_data, response_data, user):
         try:
-            event_urlsafe = received_json_data.get('eventUrlSafe')
-            event_urlsafe = ndb.Key(urlsafe=event_urlsafe)
-            event = event_urlsafe.get()
+            id = received_json_data.get('id')
+            event = Event.get_by_id(id)
 
             title = received_json_data.get('title')
             description = received_json_data.get('description')
@@ -143,10 +139,11 @@ class UpdateEvent(AuthMethods):
 class DropEvent(AuthMethods):
     def handle_auth(self, received_json_data, response_data, user):
         try:
-            message_urlsafe = received_json_data.get('eventUrlSafe')
-            message_urlsafe = ndb.Key(urlsafe=message_urlsafe)
+            id = received_json_data.get('id')
+            event = Event.get_by_id(id)
+            key = event.key
 
-            message_urlsafe.delete()
+            key.delete()
 
             response_data['message'] = 'Success droping event'.decode('latin-1')
             response_data['intern'] = True
@@ -161,10 +158,11 @@ class ClientLoadEvent(BaseClass):
             display = self.request.get('display')
             currentDate = datetime.now()
             if display:
-                query = Event.query(Event.display==display, Event.date>=currentDate).order(Event.date)
+                query = Event.query(Event.display == display, Event.date >= currentDate).order(Event.date)
             else:
-                query = Event.query(Event.date>=currentDate).order(Event.date)
-                    
+                query = Event.query(Event.date >= currentDate).order(Event.date)
+
+
             jsonEvent = {}
             jsonEventList = []
             eventList = query.fetch()
@@ -173,25 +171,22 @@ class ClientLoadEvent(BaseClass):
                 if event.key.id():
                     event.id = event.key.id()
 
-                if event.key.urlsafe():
-                    event.urlsafe = event.key.urlsafe()
+                date = event.date.strftime('%d/%m/%Y')
 
-                    date = event.date.strftime('%d/%m/%Y')
+                jsonEvent = {"title": event.title,
+                               "description": event.description,
+                               "date": date,
+                               "dateShow": date,
+                               "time": event.time,
+                               "place": event.place,
+                               "image": event.image,
+                               "display": event.display}
 
-                    jsonEvent = {"title": event.title,
-                                   "description": event.description,
-                                   "date": date,
-                                   "dateShow": date,
-                                   "time": event.time,
-                                   "place": event.place,
-                                   "image": event.image,
-                                   "display": event.display}
-
-                    jsonEventList.append(jsonEvent)
+                jsonEventList.append(jsonEvent)
 
             response_data = jsonEventList
             self.response.out.write(json.dumps(response_data))
-        except:
-            response_data['message'] = 'Error getting event list'.decode('latin-1')
-            
+        except Exception as e:
+            logging.critical('ERROR LOADING CLIENT EVENTS: '+e.message)
+            raise e
             

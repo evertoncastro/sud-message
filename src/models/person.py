@@ -4,8 +4,9 @@ from datetime import datetime
 from models.baseClass import BaseClass, BaseClassAuth
 from google.appengine.ext import ndb
 from models.authentication import AuthMethods, AuthMethodsResponse
-from models.unity import Unity
+from models.message import Message
 from models.imagecloud import ImageCloudManager
+import logging
 
 class PersonInfo(ndb.Model):
     dateCreation = ndb.DateTimeProperty(auto_now=False)
@@ -89,7 +90,6 @@ class LoadPersonList(BaseClass):
                                    "lastname": person.lastname,
                                    "image": person.image,
                                    "exibitionName": person.exibitionName,
-                                   "personUrlSafe": person.urlsafe,
                                    "unityName": person.unityName,
                                    "calling": person.calling}
 
@@ -105,9 +105,8 @@ class UpdatePerson(AuthMethods):
     def handle_auth(self, received_json_data, response_data, user):
         try:
             response_data['intern'] = False
-            person_urlsafe = received_json_data.get('personUrlSafe')
-            person_urlsafe = ndb.Key(urlsafe=person_urlsafe)
-            person = person_urlsafe.get()
+            id = received_json_data.get('id')
+            person = PersonInfo.get_by_id(id)
 
             firstname = received_json_data.get('firstname')
             lastname = received_json_data.get('lastname')
@@ -141,24 +140,33 @@ class UpdatePerson(AuthMethods):
 class DropPerson(AuthMethods):
     def handle_auth(self, received_json_data, response_data, user):
         try:
-            person_urlsafe = received_json_data.get('urlsafe')
-            person_urlsafe = ndb.Key(urlsafe=person_urlsafe)
+            id = received_json_data.get('id')
 
-            person_urlsafe.delete()
-
-            response_data['message'] = 'Success droping person'.decode('latin-1')
-            response_data['intern'] = True
-        except:
-            response_data['message'] = 'Error droping person'.decode('latin-1')
-            response_data['intern'] = False
+            query = Message.query().order()
+            messagelist = query.fetch()
+            allow_delete = True
+            for message in messagelist:
+                if int(message.person_id) == id:
+                    allow_delete = False
+                    break
+            if allow_delete:
+                person = PersonInfo.get_by_id(id)
+                key = person.key
+                key.delete()
+                response_data['message'] = 'Success droping person'.decode('latin-1')
+                response_data['intern'] = 'OK'
+            else:
+                response_data['message'] = 'Success droping person'.decode('latin-1')
+                response_data['intern'] = 'NOT_ALLOWED'
+        except Exception as e:
+            raise e
             
             
 class ClientLoadPerson(BaseClass):
     def handle(self, response_data):
         try:
-            person_urlsafe = self.request.get('personUrlSafe')
-            person_urlsafe = ndb.Key(urlsafe=person_urlsafe)
-            person = person_urlsafe.get()
+            id = int(self.request.get('id'))
+            person = PersonInfo.get_by_id(id)
             
             jsonPerson = {"firstname": person.firstname,
                            "lastname": person.lastname,
@@ -170,7 +178,9 @@ class ClientLoadPerson(BaseClass):
     
             response_data = jsonPerson
             self.response.out.write(json.dumps(response_data))
-        except:
-            response_data['message'] = 'Error getting person info'.decode('latin-1')
+        except Exception as e:
+            logging.critical('ERROR LOADING CLIENT PERSON')
+            raise e
+
          
             

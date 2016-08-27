@@ -106,7 +106,6 @@ class LoadMissionaryList(BaseClass):
                                    "address": missionary.address,
                                    "period_serving": missionary.period_serving,
                                    "image": missionary.image,
-                                   "exibitionName": missionary.exibitionName,
                                    "unityName": missionary.unityName}
 
                     jsonMissionaryList.append(jsonMissionary)
@@ -196,7 +195,6 @@ class DeleteMissionary(AuthMethods):
 class ClientLoadMissionaryList(BaseClass):
     def handle(self, response_data):
         try:
-            jsonMissionary = {}
             jsonMissionaryList = []
             query = Missionary.query().order(Missionary.unityName)
             missionaryList = query.fetch()
@@ -210,7 +208,6 @@ class ClientLoadMissionaryList(BaseClass):
                                "address": missionary.address,
                                "period_serving": missionary.period_serving,
                                "image": missionary.image,
-                               "exibitionName": missionary.exibitionName,
                                "unityName": missionary.unityName}
 
                 jsonMissionaryList.append(jsonMissionary)

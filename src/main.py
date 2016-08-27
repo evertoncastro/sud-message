@@ -3,7 +3,7 @@ import os
 import webapp2
 import jinja2
 from google.appengine.ext.webapp.util import run_wsgi_app
-from models.message import RegisterMessage, LoadMessage, LoadMessageByUser, UpdateMessage, DropMessage, ClientLoadMessage
+from models.message import RegisterMessage, LoadMessage, UpdateMessage, DropMessage, ClientLoadMessage
 from models.user import RegisterUser, DoLogin, UpdateUser, User
 from models.person import RegisterPerson, LoadPersonList, UpdatePerson, DropPerson, ClientLoadPerson
 from models.unity import UpdateUnity, LoadUnityList, RegisterUnity, LoadFullUnityList
@@ -62,20 +62,19 @@ mapping = [
     ('/updateMessage', UpdateMessage),
     ('/registerUser', RegisterUser),
     ('/doLogin', DoLogin),
-    ('/loadMessageByUser', LoadMessageByUser),
-    ('/dropMessage', DropMessage),
+    ('/deleteMessage', DropMessage),
     ('/updateUser', UpdateUser),
     ('/registerPerson', RegisterPerson),
     ('/loadPersonList', LoadPersonList),
     ('/updatePerson', UpdatePerson),
-    ('/dropPerson', DropPerson),
+    ('/deletePerson', DropPerson),
     ('/registerUnity', RegisterUnity),
     ('/loadUnityList', LoadUnityList),
     ('/loadFullUnityList', LoadFullUnityList),
     ('/updateUnity', UpdateUnity),
     ('/registerEvent', RegisterEvent),
     ('/updateEvent', UpdateEvent),
-    ('/dropEvent', DropEvent),
+    ('/deleteEvent', DropEvent),
     ('/registerMissionary', RegisterMissionary),
     ('/loadMissionaryList', LoadMissionaryList),
     ('/updateMissionary', UpdateMissionary),
@@ -85,7 +84,6 @@ mapping = [
     ('/clientLoadEvent', ClientLoadEvent),
     ('/clientLoadMessage', ClientLoadMessage),
     ('/clientLoadPerson', ClientLoadPerson),
-    ('/clientGetDeveloperContactList', GetDeveloperContactList),
     ('/imgur', Image)]
 
 
