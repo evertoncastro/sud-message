@@ -157,10 +157,7 @@ class ClientLoadEvent(BaseClass):
         try:
             display = self.request.get('display')
             currentDate = datetime.now()
-            if display:
-                query = Event.query(Event.display == display, Event.date >= currentDate).order(Event.date)
-            else:
-                query = Event.query(Event.date >= currentDate).order(Event.date)
+            query = Event.query(Event.date >= currentDate).order(Event.date)
 
 
             jsonEvent = {}
@@ -182,11 +179,15 @@ class ClientLoadEvent(BaseClass):
                                "image": event.image,
                                "display": event.display}
 
-                jsonEventList.append(jsonEvent)
+                if display:
+                    if event.display == display:
+                        jsonEventList.append(jsonEvent)
+                else:
+                    jsonEventList.append(jsonEvent)
 
             response_data = jsonEventList
             self.response.out.write(json.dumps(response_data))
         except Exception as e:
-            logging.critical('ERROR LOADING CLIENT EVENTS: '+e.message)
+            logging.critical('ERROR LOADING CLIENT EVENT: '+e.message)
             raise e
             

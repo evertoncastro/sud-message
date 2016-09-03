@@ -75,7 +75,7 @@ class LoadMessage(BaseClass):
                                    "text": msg.text,
                                    "image": msg.image,
                                    "person_id": int(msg.person_id),
-                                   "status": msg.status,
+                                   "status": str(msg.status),
                                    "display": msg.display,
                                    "dateCreation": dateCreation}
 
@@ -108,7 +108,7 @@ class UpdateMessage(AuthMethods):
                 imageUploaded = ImageCloudManager().upload(received_json_data.get('image'))
                 message.image = imageUploaded
             if status:
-                message.status = received_json_data.get('status')
+                message.status = int(received_json_data.get('status'))
             if display:
                 message.display = received_json_data.get('display')    
             if person_id:

@@ -9,6 +9,7 @@ from models.person import RegisterPerson, LoadPersonList, UpdatePerson, DropPers
 from models.unity import UpdateUnity, LoadUnityList, RegisterUnity, LoadFullUnityList
 from models.events import RegisterEvent, UpdateEvent, LoadEvent, DropEvent, ClientLoadEvent
 from models.missionary import RegisterMissionary, LoadMissionaryList, UpdateMissionary, DeleteMissionary, ClientLoadMissionaryList
+from models.banner import ClientLoadBanner
 from models.contact import GetDeveloperContactList
 from models.imagecloud import ImageCloud
 
@@ -84,6 +85,7 @@ mapping = [
     ('/clientLoadEvent', ClientLoadEvent),
     ('/clientLoadMessage', ClientLoadMessage),
     ('/clientLoadPerson', ClientLoadPerson),
+    ('/clientLoadBanner', ClientLoadBanner),
     ('/imgur', Image)]
 
 
